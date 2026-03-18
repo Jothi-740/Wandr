@@ -1,0 +1,31 @@
+<!-- Google Translate Widget (Hidden) -->
+<div id="google_translate_element" style="display:none; height: 0; width: 0; position: absolute; z-index: -1;"></div>
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      autoDisplay: false,
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+  }
+
+  // Aggressive cleanup loop to kill the banner and any popups
+  setInterval(function () {
+    // Hide banner frame
+    var banners = document.querySelectorAll('.goog-te-banner-frame, .skiptranslate');
+    banners.forEach(function (b) {
+      b.style.display = 'none';
+      b.style.visibility = 'hidden';
+    });
+
+    // Reset body position
+    if (document.body.style.top !== '0px') {
+      document.body.style.top = '0px';
+    }
+    if (document.documentElement.style.marginTop !== '0px') {
+      document.documentElement.style.marginTop = '0px';
+    }
+  }, 100);
+</script>
+<script type="text/javascript"
+  src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

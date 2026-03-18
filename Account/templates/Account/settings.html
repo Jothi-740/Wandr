@@ -1,0 +1,176 @@
+{% extends "Account/account_base.html" %}
+
+{% block account_content %}
+<div class="settings-container" style="display: flex; flex-direction: column; gap: 2.5rem;">
+  <div class="topbar topbar-col" style="margin-bottom: 2rem;">
+  <a href="{% url 'account:dashboard' %}" class="back-btn">
+    <i class="fa fa-arrow-left"></i>
+  </a>
+  <div style="display: flex; flex-direction: column; width: 100%;">
+    <h2 style="margin: 0;">Settings</h2>
+    <p style="opacity: 0.6; margin-top: 5px;">Manage your account preferences and security settings</p>
+  </div>
+</div>
+
+  <!-- Language Section -->
+  <section id="language" class="settings-section glass-panel"
+    style="padding: 2.5rem; border-radius: 24px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1); scroll-margin-top: 2rem;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem;">
+      <i class="fa-solid fa-language" style="font-size: 1.5rem; color: #2ec4ff;"></i>
+      <h3 style="margin: 0; font-size: 1.4rem;">Language</h3>
+    </div>
+    <p style="opacity: 0.7; margin-bottom: 1.5rem;">Choose your preferred language for the application interface.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+      <div class="lang-option" data-lang="en"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        English</div>
+      <div class="lang-option" data-lang="hi"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Hindi</div>
+      <div class="lang-option" data-lang="bn"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Bengali</div>
+      <div class="lang-option" data-lang="te"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Telugu</div>
+      <div class="lang-option" data-lang="mr"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Marathi</div>
+      <div class="lang-option" data-lang="ta"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Tamil</div>
+      <div class="lang-option" data-lang="ur"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Urdu</div>
+      <div class="lang-option" data-lang="gu"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Gujarati</div>
+      <div class="lang-option" data-lang="kn"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Kannada</div>
+      <div class="lang-option" data-lang="ml"
+        style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; opacity: 0.8; transition: all 0.2s;">
+        Malayalam</div>
+    </div>
+  </section>
+
+  <!-- Password Section -->
+  <section id="password" class="settings-section glass-panel"
+    style="padding: 2.5rem; border-radius: 24px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1); scroll-margin-top: 2rem;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem;">
+      <i class="fa-solid fa-lock" style="font-size: 1.5rem; color: #5a78ff;"></i>
+      <h3 style="margin: 0; font-size: 1.4rem;">Change Password</h3>
+    </div>
+    <form style="display: flex; flex-direction: column; gap: 1.2rem; max-width: 400px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Current Password</label>
+        <input type="password" placeholder="••••••••"
+          style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">New Password</label>
+        <input type="password" placeholder="Enter new password"
+          style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Confirm New Password</label>
+        <input type="password" placeholder="Confirm new password"
+          style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+      </div>
+      <button type="submit" class="btn-sm"
+        style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; width: fit-content;">Update
+        Password</button>
+    </form>
+  </section>
+
+  <!-- Delete Account Section -->
+  <section id="delete" class="settings-section glass-panel"
+    style="padding: 2.5rem; border-radius: 24px; background: rgba(255, 90, 90, 0.05); border: 1px solid rgba(255,90,90,0.2); scroll-margin-top: 2rem;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem;">
+      <i class="fa-solid fa-user-xmark" style="font-size: 1.5rem; color: #ff5a5a;"></i>
+      <h3 style="margin: 0; font-size: 1.4rem; color: #ff5a5a;">Delete Account</h3>
+    </div>
+    <p style="opacity: 0.7; margin-bottom: 2rem; line-height: 1.6;">
+      Once you delete your account, there is no going back. Please be certain. All your trip plans, memories, and
+      personal data will be permanently removed.
+    </p>
+    <form action="{% url 'account:delete_account' %}" method="POST" id="deleteAccountForm">
+      {% csrf_token %}
+      <button type="button" class="btn-sm"
+        onclick="showConfirmModal(event, function(){ document.getElementById('deleteAccountForm').submit(); }, 'Are you sure you want to PERMANENTLY delete your account? This action cannot be undone.')"
+        style="background: linear-gradient(90deg, #ff5a5a, #ff2e2e); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+        Delete Account Permanently
+      </button>
+    </form>
+  </section>
+</div>
+
+<style>
+  .settings-section {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .settings-section:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  #delete:hover {
+    border-color: rgba(255, 90, 90, 0.4) !important;
+  }
+
+  .lang-option:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .lang-option.active {
+    box-shadow: 0 0 15px rgba(46, 196, 255, 0.3);
+  }
+
+  .lang-option.active:hover {
+    background: rgba(46, 196, 255, 0.2) !important;
+  }
+</style>
+
+<script>
+  function getCookie(name) {
+    let value = "; " + document.cookie;
+    let parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+  }
+
+  let currentLang = 'en';
+  let googtrans = getCookie('googtrans');
+  if (googtrans) {
+    currentLang = googtrans.split('/').pop();
+  }
+
+  document.querySelectorAll('.lang-option').forEach(option => {
+    // initialize active state
+    if (option.getAttribute('data-lang') === currentLang || (currentLang === 'en' && !option.getAttribute('data-lang'))) {
+      option.classList.add('active');
+      option.style.background = 'rgba(46, 196, 255, 0.15)';
+      option.style.borderColor = '#2ec4ff';
+      option.style.fontWeight = '600';
+    }
+
+    option.addEventListener('click', function () {
+      let langCode = this.getAttribute('data-lang');
+      let langName = this.innerText;
+
+      if (typeof showToast === 'function') {
+        showToast(`Switching to ${langName}...`, 'success');
+      }
+
+      document.cookie = "googtrans=/en/" + langCode + "; path=/";
+      document.cookie = "googtrans=/en/" + langCode + "; path=/; domain=" + location.hostname;
+
+      // Give some time for the toast to be seen before reloading
+      setTimeout(() => {
+        window.location.reload();
+      }, 800);
+    });
+  });
+</script>
+{% endblock %}

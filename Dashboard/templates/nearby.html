@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nearby - Wandr</title>
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
+<link rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link 
+ rel="stylesheet" 
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+
+<body class="bg-theme dashboard">
+  {% include "translation_scripts.html" %}
+
+<div class="sidebar">
+
+  <div class="side-logo">
+    <img src="{% static 'images/logo.png' %}">
+  </div>
+
+  <a href="{% url 'home' %}" class="active"><i class="fa fa-home"></i></a>
+
+  <a href="{% url 'stay' %}"><i class="fa fa-hotel"></i></a>
+
+  <a href="#"><i class="fa fa-utensils"></i></a>
+
+  <a href="#"><i class="fa fa-bus"></i></a>
+
+  <a href="{% url 'emergency:dashboard' %}"><i class="fa-solid fa-truck-medical"></i></a>
+
+  <a href="{% url 'account:dashboard' %}"><i class="fa fa-user"></i></a>
+
+</div>
+
+<div class="main">
+
+  <!-- TOP BAR -->
+
+  <div class="topbar topbar-col">
+
+    <button class="back-btn" onclick="goBack()">
+      <i class="fa fa-arrow-left"></i>
+    </button>
+
+    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 10px;">
+      <h2>Nearby Places</h2>
+      <div class="search-container">
+        <input type="number" id="radiusInput" class="search-input" placeholder="5km" onkeypress="checkEnter(event)">
+        <button onclick="toggleSearch()" class="search-icon-btn">
+          <i class="fa fa-search"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- STATUS -->
+
+  <p id="statusMsg"></p>
+
+
+  <!-- RESULTS -->
+
+  <div class="places" id="nearbyList">
+
+    <p>Fetching nearby locations...</p>
+
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/app.js' %}?v=5"></script>
+    {% include "chatbot/chatbot_widget.html" %}
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div id="content-main">
+    <!-- Welcome Header as per sketch -->
+    <div style="background: rgba(46, 196, 255, 0.05); border: 1px solid rgba(46, 196, 255, 0.2); border-radius: 20px; padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+        <h2 style="margin: 0; color: #fff;">Chatbot Control Panel</h2>
+    </div>
+
+    <!-- Layout Grid -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 30px;">
+        <!-- Chatbot Section -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 35px;">
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px;">Manage the Chatbot service for your users. You can disable it for maintenance.</p>
+            <div style="display: flex; gap: 40px; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="radio" name="chatbot" checked style="accent-color: #2ec4ff; width: 20px; height: 20px;">
+                    <span style="font-size: 16px;">Enable Service</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="radio" name="chatbot" style="accent-color: #2ec4ff; width: 20px; height: 20px;">
+                    <span style="font-size: 16px;">Disable for Maintenance</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

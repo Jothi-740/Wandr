@@ -1,0 +1,568 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Home - Wandr</title>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=15">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+
+  <style>
+    /* Premium Glass Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .glass-modal-card {
+      background: rgba(20, 30, 60, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 30px;
+      padding: 40px;
+      width: 90%;
+      max-width: 550px;
+      color: #fff;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(46, 196, 255, 0.08);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .glass-modal-card {
+      transform: translateY(0);
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 24px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .close-modal-btn:hover {
+      color: #ff5252;
+    }
+
+    .glass-modal-card h2 {
+      margin-top: 0;
+      font-size: 28px;
+      text-align: center;
+      background: linear-gradient(135deg, #fff, #2ec4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 25px;
+    }
+
+    .glass-form label {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .glass-form input,
+    .glass-form select,
+    .glass-form textarea {
+      width: 100%;
+      padding: 12px 15px;
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .glass-form select option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .glass-form button[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      margin-top: 30px;
+      background: linear-gradient(135deg, #2ec4ff, #5a78ff);
+      border: none;
+      border-radius: 15px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .glass-form button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(46, 196, 255, 0.4);
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .radio-item input[type="radio"] {
+      width: auto;
+      margin: 0;
+    }
+  </style>
+
+
+
+</head>
+
+<body class="bg-theme dashboard">
+  {% include "translation_scripts.html" %}
+
+  <!-- SIDEBAR -->
+
+  <div class="sidebar">
+
+    <div class="side-logo">
+      <img src="{% static 'images/logo.png' %}">
+    </div>
+
+    <a href="{% url 'home' %}" class="active"><i class="fa fa-home"></i></a>
+
+    <a href="{% url 'stay' %}"><i class="fa fa-hotel"></i></a>
+
+    <a href="{% url 'food:nearby_food' %}"><i class="fa fa-utensils"></i></a>
+
+    <a href="{% url 'transport:nearby_transport' %}"><i class="fa fa-bus"></i></a>
+
+    <a href="{% url 'emergency:dashboard' %}"><i class="fa-solid fa-truck-medical"></i></a>
+
+    <a href="{% url 'account:dashboard' %}"><i class="fa fa-user"></i></a>
+
+  </div>
+
+
+  <!-- MAIN CONTENT -->
+
+  <div class="main">
+
+    <!-- TOP BAR -->
+
+    <div class="topbar">
+
+      <h2>Welcome to Wandr 🌍</h2>
+
+      <button onclick="logout()" class="logout-btn">
+        <i class="fa fa-sign-out"></i>
+      </button>
+
+    </div>
+
+
+    <!-- SLIDER -->
+
+    <div class="slider glass">
+
+      <h3>Explore Top Places</h3>
+
+      <div class="slider-viewport">
+        <div class="slides">
+
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900" class="slide active">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900" class="slide">
+          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=900" class="slide">
+          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900" class="slide">
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GRID LAYOUT -->
+    <div class="home-grid">
+
+      <!-- LEFT SIDE -->
+      <div class="left-col">
+        <div id="map" class="map glass"></div>
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="right-col">
+
+        <!-- UNIFIED NEARBY CARD -->
+        <div class="nearby-card glass">
+
+          <!-- NEARBY -->
+          <div class="nearby">
+            <button onclick="goNearby()" class="nearby-btn">
+              <i class="fa fa-location-dot"></i> Explore Nearby
+            </button>
+          </div>
+
+          <!-- FLASHCARDS -->
+          <div class="flashcard-slider">
+            <!-- <h3>Discover Places</h3> -->
+            <div class="flashcards">
+              <div class="flashcard active">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/500px-Taj_Mahal_%28Edited%29.jpeg"
+                        alt="Agra">
+                    </div>
+                    <div class="fc-back glass">
+                      "Travel is the only thing you buy that makes you richer."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg/500px-East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg"
+                        alt="Jaipur">
+                    </div>
+                    <div class="fc-back glass">
+                      "To travel is to discover that everyone is wrong about other countries."
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/House_Boat_DSW.jpg/500px-House_Boat_DSW.jpg"
+                        alt="Kerala">
+                    </div>
+                    <div class="fc-back glass">
+                      "A journey of a thousand miles begins with a single step."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img src="https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=400&q=80" alt="Mumbai">
+                    </div>
+                    <div class="fc-back glass">
+                      "Not all those who wander are lost."
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/The_Golden_Temple_of_Amrithsar_7.jpg/500px-The_Golden_Temple_of_Amrithsar_7.jpg"
+                        alt="Amritsar">
+                    </div>
+                    <div class="fc-back glass">
+                      "The world is a book and those who do not travel read only one page."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img src="https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400&q=80" alt="Delhi">
+                    </div>
+                    <div class="fc-back glass">
+                      "Wherever you go, go with all your heart."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mumbai_03-2016_30_Gateway_of_India.jpg/500px-Mumbai_03-2016_30_Gateway_of_India.jpg"
+                        alt="Gateway of India">
+                    </div>
+                    <div class="fc-back glass">
+                      "The journey itself is my home."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Qutb_Minar_2022.jpg/500px-Qutb_Minar_2022.jpg"
+                        alt="Qutub Minar">
+                    </div>
+                    <div class="fc-back glass">
+                      "To awaken quite alone in a strange town is one of the pleasantest sensations in the world."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/500px-Mysore_Palace_Morning.jpg"
+                        alt="Mysore Palace">
+                    </div>
+                    <div class="fc-back glass">
+                      "Travel makes one modest. You see what a tiny place you occupy in the world."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/India_Gate_in_New_Delhi_03-2016.jpg/500px-India_Gate_in_New_Delhi_03-2016.jpg"
+                        alt="India Gate">
+                    </div>
+                    <div class="fc-back glass">
+                      "We travel, some of us forever, to seek other states, other lives, other souls."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Charminar_Hyderabad_1.jpg/500px-Charminar_Hyderabad_1.jpg"
+                        alt="Charminar">
+                    </div>
+                    <div class="fc-back glass">
+                      "Man cannot discover new oceans unless he has the courage to lose sight of the shore."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Delhi_fort.jpg/500px-Delhi_fort.jpg"
+                        alt="Red Fort">
+                    </div>
+                    <div class="fc-back glass">
+                      "A good traveler has no fixed plans and is not intent on arriving."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <button class="slide-btn left" onclick="prevFlashcard()">
+              <i class="fa fa-chevron-left"></i>
+            </button>
+            <button class="slide-btn right" onclick="nextFlashcard()">
+              <i class="fa fa-chevron-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer glass">
+      <div class="footer-content">
+        <button onclick="openSupport()" class="footer-btn">
+          <i class="fa fa-life-ring"></i> Support
+        </button>
+        <button onclick="openFeedback()" class="footer-btn">
+          <i class="fa fa-comment-dots"></i> Send us Feedback
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- EXIT FEEDBACK POPUP (TOAST STYLE) -->
+  <!-- Support Modal -->
+  <div id="supportModal" class="modal-overlay">
+    <div class="glass-modal-card">
+      <button class="close-modal-btn" onclick="closeModal('supportModal')">&times;</button>
+      <h2>Wandr Support</h2>
+      <form class="glass-form" id="supportForm">
+        <label for="sup-name">Your Name:</label>
+        <input type="text" id="sup-name" name="name" placeholder="Enter your name" required>
+
+        <label for="sup-email">Your Email:</label>
+        <input type="email" id="sup-email" name="email" placeholder="Enter your email" required>
+
+        <label for="sup-issue">Issue Type:</label>
+        <select id="sup-issue" name="issueType" required>
+          <option value="" disabled selected>--Select Issue Type--</option>
+          <option value="Technical">App Crashes / Technical Errors</option>
+          <option value="Account">Login / Account Issues</option>
+          <option value="Navigation">Navigation / Map Errors</option>
+          <option value="Information">Content / Information Errors</option>
+          <option value="Other">Other Issues</option>
+        </select>
+
+        <label>Priority Level:</label>
+        <div class="radio-row">
+          <div class="radio-item"><input type="radio" id="p-high" name="priority" value="High" required><label
+              for="p-high">High</label></div>
+          <div class="radio-item"><input type="radio" id="p-med" name="priority" value="Medium" checked><label
+              for="p-med">Medium</label></div>
+          <div class="radio-item"><input type="radio" id="p-low" name="priority" value="Low"><label
+              for="p-low">Low</label></div>
+        </div>
+
+        <label for="sup-desc">Describe Your Issue:</label>
+        <textarea id="sup-desc" name="description" rows="4" placeholder="How can we help?" required></textarea>
+
+        <button type="submit">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="modal-overlay">
+    <div class="glass-modal-card" style="max-height: 88vh; overflow-y: auto;">
+      <button class="close-modal-btn" onclick="closeModal('feedbackModal')">&times;</button>
+      <h2>Wandr Feedback</h2>
+      <form class="glass-form" id="feedbackForm">
+
+        <!-- Q1: Overall Experience -->
+        <label for="fb-overall">1. Overall Experience:</label>
+        <select id="fb-overall" name="overall" required>
+          <option value="" disabled selected>--Select--</option>
+          <option value="1">1 ⭐ Poor</option>
+          <option value="2">2 ⭐</option>
+          <option value="3">3 ⭐ Average</option>
+          <option value="4">4 ⭐ Good</option>
+          <option value="5">5 ⭐ Excellent</option>
+        </select>
+
+        <!-- Q2: Hotels -->
+        <label>2. Was it easy to find suitable hotels or accommodations?</label>
+        <div class="radio-row">
+          <div class="radio-item"><input type="radio" id="hotelsYes" name="hotels" value="Yes" required><label for="hotelsYes">Yes</label></div>
+          <div class="radio-item"><input type="radio" id="hotelsSomewhat" name="hotels" value="Somewhat"><label for="hotelsSomewhat">Somewhat</label></div>
+          <div class="radio-item"><input type="radio" id="hotelsNo" name="hotels" value="No"><label for="hotelsNo">No</label></div>
+        </div>
+
+        <!-- Q3: Food -->
+        <label>3. Did you find the restaurant/food suggestions helpful?</label>
+        <div class="radio-row">
+          <div class="radio-item"><input type="radio" id="foodYes" name="food" value="Yes" required><label for="foodYes">Yes</label></div>
+          <div class="radio-item"><input type="radio" id="foodSomewhat" name="food" value="Somewhat"><label for="foodSomewhat">Somewhat</label></div>
+          <div class="radio-item"><input type="radio" id="foodNo" name="food" value="No"><label for="foodNo">No</label></div>
+        </div>
+
+        <!-- Q4: Places -->
+        <label>4. Was it easy to discover popular places to visit nearby?</label>
+        <div class="radio-row">
+          <div class="radio-item"><input type="radio" id="placesYes" name="places" value="Yes" required><label for="placesYes">Yes</label></div>
+          <div class="radio-item"><input type="radio" id="placesSomewhat" name="places" value="Somewhat"><label for="placesSomewhat">Somewhat</label></div>
+          <div class="radio-item"><input type="radio" id="placesNo" name="places" value="No"><label for="placesNo">No</label></div>
+        </div>
+
+        <!-- Q5: Transport -->
+        <label>5. Did the app provide clear and useful transport details?</label>
+        <div class="radio-row">
+          <div class="radio-item"><input type="radio" id="transportYes" name="transport" value="Yes" required><label for="transportYes">Yes</label></div>
+          <div class="radio-item"><input type="radio" id="transportSomewhat" name="transport" value="Somewhat"><label for="transportSomewhat">Somewhat</label></div>
+          <div class="radio-item"><input type="radio" id="transportNo" name="transport" value="No"><label for="transportNo">No</label></div>
+        </div>
+
+        <!-- Q6: Usability -->
+        <label for="fb-usability">6. Was the app easy to use and navigate?</label>
+        <select id="fb-usability" name="usability" required>
+          <option value="" disabled selected>--Select--</option>
+          <option value="1">1 ⭐ Very Difficult</option>
+          <option value="2">2 ⭐</option>
+          <option value="3">3 ⭐ Average</option>
+          <option value="4">4 ⭐ Easy</option>
+          <option value="5">5 ⭐ Very Easy</option>
+        </select>
+
+        <!-- Q7: Comments -->
+        <label for="fb-comments">7. Additional Suggestions (Optional):</label>
+        <textarea id="fb-comments" name="comments" rows="3" placeholder="Write your feedback here..."></textarea>
+
+        <button type="submit">Submit Feedback</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="exitPopup" class="modal-overlay toast">
+    <div class="modal-content glass">
+      <button class="close-popup" onclick="closeExitPopup()">&times;</button>
+      <h2>Wait! Before you go... 🌍</h2>
+      <p>We'd love to hear about your experience with Wandr.</p>
+
+      <div class="feedback-stars">
+        <span onclick="rate(1)" class="star">⭐</span>
+        <span onclick="rate(2)" class="star">⭐</span>
+        <span onclick="rate(3)" class="star">⭐</span>
+        <span onclick="rate(4)" class="star">⭐</span>
+        <span onclick="rate(5)" class="star">⭐</span>
+      </div>
+
+      <textarea id="exitFeedbackMsg" placeholder="Anything we can improve?"></textarea>
+
+      <div class="popup-btns">
+        <button onclick="submitExitFeedback()" class="footer-btn">Submit & Logout</button>
+        <button onclick="logoutNow()" class="btn-secondary">Just Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="{% static 'js/app.js' %}?v=10"></script>
+
+  {% include "chatbot/chatbot_widget.html" %}
+
+</body>
+
+</html>

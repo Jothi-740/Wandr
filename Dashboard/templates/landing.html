@@ -1,0 +1,476 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Landing - Wandr</title>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=15">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+
+  <style>
+    .login-top-btn {
+      background: linear-gradient(135deg, #2ec4ff, #0072ff);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 196, 255, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .login-top-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 196, 255, 0.4);
+    }
+
+    /* Custom Auth Modal */
+    .auth-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-modal-content {
+      background: radial-gradient(ellipse at 30% 20%, rgba(90, 120, 255, 0.25), transparent 45%), 
+                  radial-gradient(ellipse at 70% 80%, rgba(46, 196, 255, 0.18), transparent 50%), 
+                  linear-gradient(180deg, #0F1C2E, #2B124C);
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .auth-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      font-size: 20px;
+      transition: color 0.3s;
+    }
+
+    .auth-modal-close:hover {
+      color: white;
+    }
+
+    .auth-modal-icon {
+      font-size: 50px;
+      color: #2ec4ff;
+      margin-bottom: 20px;
+    }
+
+    .auth-modal h3 {
+      margin-bottom: 10px;
+      color: white;
+      font-size: 24px;
+    }
+
+    .auth-modal p {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 25px;
+    }
+
+    .auth-modal-btns {
+      display: flex;
+      gap: 15px;
+    }
+
+    .auth-modal-btns button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-login-now {
+      background: #2ec4ff;
+      color: #0F1C2E;
+      border: none;
+    }
+
+    .btn-cancel-now {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-login-now:hover { background: #00b0ff; }
+    .btn-cancel-now:hover { background: rgba(255, 255, 255, 0.2); }
+
+    /* Hide restricted elements blur Effect - Optional but looks premium */
+    .restricted-blur {
+      filter: blur(2px);
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+  </style>
+
+<body class="bg-theme dashboard">
+
+  <!-- AUTH MODAL -->
+  <div id="authModal" class="auth-modal">
+    <div class="auth-modal-content glass">
+      <span class="auth-modal-close" onclick="closeAuthModal()">&times;</span>
+      <div class="auth-modal-icon">
+        <i class="fa fa-lock"></i>
+      </div>
+      <h3 id="authModalTitle">Unlock the Adventure</h3>
+      <p id="authModalText">Please login to access all planning features and personalized journeys.</p>
+      <div class="auth-modal-btns">
+        <button class="btn-cancel-now" onclick="closeAuthModal()">Cancel</button>
+        <button class="btn-login-now" onclick="goToLogin()">Login Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+
+  <div class="sidebar">
+
+    <div class="side-logo">
+      <img src="{% static 'images/logo.png' %}">
+    </div>
+
+    <a href="#" onclick="goToLogin(); return false;" class="active"><i class="fa fa-home"></i></a>
+
+    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-hotel"></i></a>
+
+    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-utensils"></i></a>
+
+    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-bus"></i></a>
+
+    <a href="#" onclick="goToLogin(); return false;"><i class="fa-solid fa-truck-medical"></i></a>
+
+    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-user"></i></a> 
+
+  </div>
+
+
+  <!-- MAIN CONTENT -->
+
+  <div class="main">
+
+    <!-- TOP BAR -->
+
+    <div class="topbar">
+
+      <h2>Explore Wandr 🌍</h2>
+
+      <div style="display: flex; align-items: center;">
+        <button class="login-top-btn" onclick="goToLogin()">
+          <i class="fa fa-user-lock"></i> Login
+        </button>
+      </div>
+
+    </div>
+
+
+    <!-- SLIDER -->
+
+    <div class="slider glass">
+
+      <h3>Explore Top Places</h3>
+
+      <div class="slider-viewport">
+        <div class="slides">
+
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900" class="slide active">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900" class="slide">
+          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=900" class="slide">
+          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900" class="slide">
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GRID LAYOUT -->
+    <div class="home-grid">
+
+      <!-- LEFT SIDE -->
+      <div class="left-col" onclick="goToLogin()" style="cursor: pointer;">
+        <div id="map" class="map glass" style="pointer-events: none;"></div>
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="right-col">
+
+        <!-- UNIFIED NEARBY CARD -->
+        <div class="nearby-card glass">
+
+          <!-- NEARBY -->
+          <div class="nearby">
+            <button onclick="goToLogin()" class="nearby-btn">
+              <i class="fa fa-location-dot"></i> Explore Nearby
+            </button>
+          </div>
+
+          <!-- FLASHCARDS -->
+          <div class="flashcard-slider">
+            <!-- <h3>Discover Places</h3> -->
+            <div class="flashcards">
+              <div class="flashcard active">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/500px-Taj_Mahal_%28Edited%29.jpeg"
+                        alt="Agra">
+                    </div>
+                    <div class="fc-back glass">
+                      "Travel is the only thing you buy that makes you richer."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg/500px-East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg"
+                        alt="Jaipur">
+                    </div>
+                    <div class="fc-back glass">
+                      "To travel is to discover that everyone is wrong about other countries."
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/House_Boat_DSW.jpg/500px-House_Boat_DSW.jpg"
+                        alt="Kerala">
+                    </div>
+                    <div class="fc-back glass">
+                      "A journey of a thousand miles begins with a single step."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img src="https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=400&q=80" alt="Mumbai">
+                    </div>
+                    <div class="fc-back glass">
+                      "Not all those who wander are lost."
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/The_Golden_Temple_of_Amrithsar_7.jpg/500px-The_Golden_Temple_of_Amrithsar_7.jpg"
+                        alt="Amritsar">
+                    </div>
+                    <div class="fc-back glass">
+                      "The world is a book and those who do not travel read only one page."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img src="https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400&q=80" alt="Delhi">
+                    </div>
+                    <div class="fc-back glass">
+                      "Wherever you go, go with all your heart."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mumbai_03-2016_30_Gateway_of_India.jpg/500px-Mumbai_03-2016_30_Gateway_of_India.jpg"
+                        alt="Gateway of India">
+                    </div>
+                    <div class="fc-back glass">
+                      "The journey itself is my home."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Qutb_Minar_2022.jpg/500px-Qutb_Minar_2022.jpg"
+                        alt="Qutub Minar">
+                    </div>
+                    <div class="fc-back glass">
+                      "To awaken quite alone in a strange town is one of the pleasantest sensations in the world."
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/500px-Mysore_Palace_Morning.jpg"
+                        alt="Mysore Palace">
+                    </div>
+                    <div class="fc-back glass">
+                      "Travel makes one modest. You see what a tiny place you occupy in the world."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/India_Gate_in_New_Delhi_03-2016.jpg/500px-India_Gate_in_New_Delhi_03-2016.jpg"
+                        alt="India Gate">
+                    </div>
+                    <div class="fc-back glass">
+                      "We travel, some of us forever, to seek other states, other lives, other souls."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flashcard">
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Charminar_Hyderabad_1.jpg/500px-Charminar_Hyderabad_1.jpg"
+                        alt="Charminar">
+                    </div>
+                    <div class="fc-back glass">
+                      "Man cannot discover new oceans unless he has the courage to lose sight of the shore."
+                    </div>
+                  </div>
+                </div>
+                <div class="fc-item">
+                  <div class="fc-inner">
+                    <div class="fc-front">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Delhi_fort.jpg/500px-Delhi_fort.jpg"
+                        alt="Red Fort">
+                    </div>
+                    <div class="fc-back glass">
+                      "A good traveler has no fixed plans and is not intent on arriving."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <button class="slide-btn left" onclick="prevFlashcard()">
+              <i class="fa fa-chevron-left"></i>
+            </button>
+            <button class="slide-btn right" onclick="nextFlashcard()">
+              <i class="fa fa-chevron-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer glass">
+      <div class="footer-content">
+        <button onclick="goToLogin()" class="footer-btn">
+          <i class="fa fa-life-ring"></i> Support
+        </button>
+        <button onclick="goToLogin()" class="footer-btn">
+          <i class="fa fa-comment-dots"></i> Send us Feedback
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="{% static 'js/app.js' %}?v=10"></script>
+
+  <script>
+    const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+
+    function showAuthModal(title = "Unlock the Adventure", text = "Please login to access all planning features and personalized journeys.") {
+      document.getElementById('authModalTitle').innerText = title;
+      document.getElementById('authModalText').innerText = text;
+      document.getElementById('authModal').style.display = 'flex';
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+    }
+
+    function goToLogin() {
+      window.location.href = "{% url 'login' %}?next={{ request.path }}";
+    }
+
+    function checkAuth(event, url) {
+      if (event) event.preventDefault();
+      
+      if (!isAuthenticated) {
+        showAuthModal("Login Required", "First you need to login to explore our premium travel tools.");
+      } else {
+        if (url && url !== '#') {
+          window.location.href = url;
+        }
+      }
+    }
+
+    // Auto-popup if not logged in
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!isAuthenticated) {
+        setTimeout(() => {
+          showAuthModal();
+        }, 1200);
+      }
+    });
+
+    // Close modal on click outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('authModal');
+      if (event.target == modal) {
+        closeAuthModal();
+      }
+    }
+  </script>
+
+    {% include "chatbot/chatbot_widget.html" %}
+</body>
+
+</html>

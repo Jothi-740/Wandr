@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div id="content-main">
+    <div style="background: rgba(46, 196, 255, 0.05); border: 1px solid rgba(46, 196, 255, 0.2); border-radius: 20px; padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+        <h2 style="margin: 0; color: #fff;">User Feedbacks & Suggestions</h2>
+    </div>
+
+    <!-- Layout Grid -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+        
+        <!-- Feedback list -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>Alex Martinez</strong> <span style="color: rgba(255,255,255,0.4); font-size: 13px;">March 15, 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">The new itinerary generation is amazing, but sometimes it doesn't give me any places for the 3rd day when I plan a 5 day trip to Paris.</p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>John Doe</strong> <span style="color: rgba(255,255,255,0.4); font-size: 13px;">March 12, 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">I'm really liking the dark mode glass implementation! Much easier on the eyes.</p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

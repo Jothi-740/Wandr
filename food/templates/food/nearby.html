@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Food - Wandr</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'food/style.css' %}?v=4.0">
+
+</head>
+
+<body onload="getFood()">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="side-logo">
+            <img src="{% static 'images/logo.png' %}">
+        </div>
+        <a href="{% url 'home' %}"><i class="fa fa-home"></i></a>
+        <a href="{% url 'stay' %}"><i class="fa fa-hotel"></i></a>
+        <a href="{% url 'food:nearby_food' %}" class="active"><i class="fa fa-utensils"></i></a>
+        <a href="{% url 'transport:nearby_transport' %}"><i class="fa fa-bus"></i></a>
+        <a href="{% url 'emergency:dashboard' %}"><i class="fa-solid fa-truck-medical"></i></a>
+        <a href="{% url 'account:dashboard' %}"><i class="fa fa-user"></i></a>
+    </div>
+
+    <!-- TOP BAR -->
+    <div class="topbar topbar-col">
+        <button class="back-btn" onclick="window.location.href='{% url 'home' %}';">
+            <i class="fa fa-arrow-left"></i>
+        </button>
+        <h2 style="margin-left: 0;">Nearby Restaurants</h2>
+    </div>
+
+    <div id="loading-state"
+        style="padding: 20px; text-align: left; margin-left: 20px; font-size: 1.2rem; color: #fff; opacity: 0.8;">
+        Loading nearby restaurants...
+    </div>
+
+    <div class="main-layout" id="main-layout" style="display: none;">
+        <div class="left-panel">
+            <h2 id="left-title">Map & Directions</h2>
+            <div id="directions-panel"></div>
+            <div id="map"></div>
+        </div>
+
+        <div class="right-panel" id="places-panel">
+            <h2 id="right-title" style="display: none;">Nearby Places</h2>
+            <p id="status" style="font-weight: bold; color: #4cc9f0;">Select an option to start exploring!</p>
+            <div id="results"></div>
+        </div>
+
+        <div class="right-panel" id="nav-panel" style="display: none;">
+            <h2 id="nav-dest-title">Route Details</h2>
+
+            <div class="direction-header" id="next-direction">
+                <div class="direction-icon">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="next-street-text">
+                    <span>Next street: --</span>
+                    <i class="fas fa-volume-up" id="voiceToggle" style="cursor: pointer; color: #4cc9f0;"
+                        onclick="toggleVoice()" title="Toggle Voice Directions"></i>
+                </div>
+            </div>
+            <div class="divider"></div>
+
+            <div class="stats-box" style="margin-top: 20px; text-align: left;">
+                Distance: <span id="distance">--</span><br>
+                ETA: <span id="time">--</span><br>
+                Speed: <span id="speed">0</span> km/h<br>
+                Remaining: <span id="remain">0</span> km
+            </div>
+
+            <div class="actions" style="margin-top: 30px; display: flex; gap: 15px;">
+                <button class="btn-recenter" id="recenterBtn" style="flex: 1;"><i class="fas fa-map-marker-alt"
+                        style="color:#e74c3c;"></i> Recenter</button>
+                <button class="btn-start" id="startBtn" style="flex: 1; background: #27ae60;"><i
+                        class="fas fa-play"></i> Start Journey</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script src="{% static 'food/script.js' %}?v=4.0"></script>
+
+    {% include "chatbot/chatbot_widget.html" %}
+</body>
+
+</html>

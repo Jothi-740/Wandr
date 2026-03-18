@@ -1,0 +1,33 @@
+{% extends "Account/account_base.html" %}
+
+{% block account_content %}
+  <div class="topbar topbar-col" style="margin-bottom: 2rem;">
+    <a href="{% url 'home' %}" class="back-btn">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <div style="display: flex; flex-direction: column; width: 100%;">
+      <h2 style="margin: 0;">Welcome, {{ user.first_name|default:user.username|title }}!</h2>
+      <p style="opacity: 0.6; margin-top: 5px;">Select an option from the sidebar to manage your account details.</p>
+    </div>
+  </div>
+  
+  <div class="summary-cards">
+    {% if profile %}
+      <div class="summary-card glass">
+        <h3>Profile Completion</h3>
+        <p>Your profile is up to date.</p>
+        <a href="{% url 'account:profile' %}" class="btn-sm">Edit Profile</a>
+      </div>
+    {% endif %}
+    
+    <div class="summary-card glass">
+      <h3>Travel Itineraries</h3>
+      {% if plans %}
+        <p>You have <strong>{{ plans.count }}</strong> planned trips.</p>
+      {% else %}
+        <p>You have no travel itineraries right now.</p>
+      {% endif %}
+      <a href="{% url 'account:plans' %}" class="btn-sm">View Planners</a>
+    </div>
+  </div>
+{% endblock %}

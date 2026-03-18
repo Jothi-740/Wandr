@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Wandr</title>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="bg-theme">
+  {% include "translation_scripts.html" %}
+
+  <div class="card glass">
+
+    <button class="back-btn" onclick="goBack()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <img src="{% static 'images/logo.png' %}" class="small-logo">
+
+    <form method="POST">
+      {% csrf_token %}
+      {% if messages %}
+        <div style="color: #ff6b6b; margin-bottom: 15px; font-size: 0.9rem;">
+          {% for message in messages %}{{ message }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <input type="text" placeholder="Email or Mobile Number" id="loginId" name="loginId" required>
+      <input type="password" placeholder="Password" id="password" name="password" required>
+
+      <button type="submit" class="btn-primary">
+        <i class="fa-solid fa-lock"></i> Login
+      </button>
+
+      <div class="separator"><span>OR</span></div>
+
+      <div id="g_id_onload"
+           data-client_id="155807928935-vb36t88v1dkqp7smmgc4hs6ncmc6kq2e.apps.googleusercontent.com"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="pill"
+           data-theme="filled_blue"
+           data-text="signin_with"
+           data-size="large"
+           data-logo_alignment="left"
+           data-width="260">
+      </div>
+    </form>
+
+    <p class="link-text">
+      Don’t have an account?
+      <a href="{% url 'signup' %}">Sign Up</a>
+    </p>
+
+  </div>
+
+  <script src="{% static 'js/app.js' %}"></script>
+  <script>
+    function handleCredentialResponse(response) {
+      // Show loading toast
+      showToast("Authenticating...", "info");
+      
+      fetch("{% url 'account:google_login' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ credential: response.credential })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showToast("Success! Redirecting...", "success");
+          setTimeout(() => {
+            window.location.href = data.redirect_url;
+          }, 1000);
+        } else {
+          showToast("Login failed: " + data.message, "error");
+        }
+      })
+      .catch(err => {
+        showToast("Connection error. Please try again.", "error");
+      });
+    }
+
+    function showToast(message, type) {
+      // Find the card container
+      const container = document.querySelector('.card');
+      if (!container) return;
+
+      // Remove existing toast inside the card
+      const oldToast = container.querySelector('.premium-toast');
+      if (oldToast) oldToast.remove();
+
+      const toast = document.createElement('div');
+      toast.className = `premium-toast glass ${type}`;
+      toast.innerHTML = `
+        <div class="toast-content">
+          <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wandr - Welcome</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Leaflet CSS -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+
+</head>
+<body class="bg-theme">
+
+  <div class="center-container">
+
+    <img src="{% static 'images/logo.png' %}" class="logo glow" alt="Wandr Logo">
+
+    <h1 class="app-name">WANDR</h1>
+
+    <p class="tagline">Explore • Travel • Discover</p>
+
+    <button class="btn-primary" onclick="goLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> Login
+    </button>
+
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+  <script src="{% static 'js/app.js' %}"></script>
+
+    {% include "chatbot/chatbot_widget.html" %}
+</body>
+</html>

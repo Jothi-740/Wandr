@@ -1,0 +1,546 @@
+{% extends "Account/account_base.html" %}
+
+{% block account_content %}
+<div class="topbar topbar-col" style="margin-bottom: 2rem;">
+  <a href="{% url 'account:dashboard' %}" class="back-btn">
+    <i class="fa fa-arrow-left"></i>
+  </a>
+  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <h2 style="margin: 0;">Profile</h2>
+    <button class="btn-sm" id="edit-btn" onclick="toggleEdit()" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none;"><i class="fa-solid fa-pen"></i> Edit</button>
+  </div>
+</div>
+
+<div class="profile-grid">
+  <!-- Wrap the main card in a form with display: contents to keep exact CSS layout -->
+  <form method="POST" enctype="multipart/form-data" action="{% url 'account:profile' %}" id="profile-form"
+    style="display: contents;">
+    {% csrf_token %}
+    <div class="profile-main-card glass" id="profile-card" style="position: relative; padding-top: 3.5rem;">
+      <h3 style="position: absolute; top: 1.5rem; left: 1.5rem; margin: 0;">My Profile</h3>
+
+      <div class="avatar-circle" style="position: relative; overflow: hidden;">
+        {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" alt="Avatar"
+          style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+        {% endif %}
+        <!-- Hover/Edit overlay for the camera icon -->
+        <div id="avatar-edit-container"
+          style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; cursor: pointer; border-radius: inherit;">
+          <i class="fa-solid fa-camera" style="color: white; font-size: 1.5rem;"></i>
+          <input type="file" name="profile_picture" accept="image/*"
+            style="opacity: 0; position: absolute; inset: 0; cursor: pointer; width: 100%; height: 100%;">
+        </div>
+      </div>
+
+      <div class="user-details">
+
+        <div class="detail-row edit-col-when-active">
+          <label>Username</label>
+          <span class="view-field">{{ user.username }}</span>
+          <input class="edit-field" type="text" name="username" value="{{ user.username }}"
+            style="display: none; padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+        </div>
+
+        <div class="detail-row edit-col-when-active">
+          <label>First Name</label>
+          <span class="view-field">{{ user.first_name }}</span>
+          <input class="edit-field" type="text" name="first_name" value="{{ user.first_name }}"
+            style="display: none; padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+        </div>
+
+        <div class="detail-row edit-col-when-active">
+          <label>Last Name</label>
+          <span class="view-field">{{ user.last_name }}</span>
+          <input class="edit-field" type="text" name="last_name" value="{{ user.last_name }}"
+            style="display: none; padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+        </div>
+
+        <div class="detail-row">
+          <label>Email</label>
+          <span>{{ user.email }}</span>
+        </div>
+
+        <div class="detail-row edit-col-when-active">
+          <label>Phone Number</label>
+          <span class="view-field">{{ profile.phone|default:'Not provided' }}</span>
+          <input class="edit-field" type="text" name="phone" value="{{ profile.phone|default:'' }}"
+            style="display: none; padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+        </div>
+
+        <div class="detail-row edit-col-when-active">
+          <label>Location</label>
+          <span class="view-field">{{ profile.city|default:'Unknown' }}</span>
+          <input class="edit-field" type="text" name="city" value="{{ profile.city|default:'' }}"
+            style="display: none; padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+        </div>
+
+        <div class="detail-row edit-col-when-active"
+          style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+          <label>Bio</label>
+          <p class="view-field bio-text" style="width: 100%;">{{ profile.bio|default:'No bio provided yet.' }}</p>
+          <textarea class="edit-field" name="bio" rows="3"
+            style="display: none; width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">{{ profile.bio|default:'' }}</textarea>
+        </div>
+
+        <div id="edit-actions" style="display: none; gap: 1rem; margin-top: 1rem;">
+          <button type="submit" class="btn-sm"
+            style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Save
+            Changes</button>
+          <button type="button" class="btn-sm" onclick="cancelEdit()"
+            style="background: linear-gradient(90deg, #ff5a5a, #ff2e2e); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Discard</button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  function toggleEdit() {
+    // Hide the global edit button, show the avatar camera icon and action buttons
+    document.getElementById('edit-btn').style.display = 'none';
+    document.getElementById('avatar-edit-container').style.display = 'flex';
+    document.getElementById('edit-actions').style.display = 'flex';
+
+    const viewFields = document.querySelectorAll('.view-field');
+    const editFields = document.querySelectorAll('.edit-field');
+    const editCols = document.querySelectorAll('.edit-col-when-active');
+
+    // Toggle visibility
+    viewFields.forEach(el => el.style.display = 'none');
+    editFields.forEach(el => el.style.display = 'block');
+
+    // Flexbox adjustments so the input spans full width comfortably
+    editCols.forEach(el => {
+      el.dataset.originalFlexDir = el.style.flexDirection || '';
+      el.dataset.originalAlign = el.style.alignItems || '';
+      el.dataset.originalGap = el.style.gap || '';
+
+      el.style.flexDirection = 'column';
+      el.style.alignItems = 'flex-start';
+      el.style.gap = '0.5rem';
+      const input = el.querySelector('input');
+      if (input) input.style.width = '100%';
+    });
+  }
+
+  function cancelEdit() {
+    // Restore standard view interface
+    document.getElementById('edit-btn').style.display = 'inline-block';
+    document.getElementById('avatar-edit-container').style.display = 'none';
+    document.getElementById('edit-actions').style.display = 'none';
+
+    const viewFields = document.querySelectorAll('.view-field');
+    const editFields = document.querySelectorAll('.edit-field');
+    const editCols = document.querySelectorAll('.edit-col-when-active');
+
+    // Revert visibility
+    viewFields.forEach(el => el.style.display = '');
+    editFields.forEach(el => el.style.display = 'none');
+
+    // Restore flexbox to prior settings
+    editCols.forEach(el => {
+      el.style.flexDirection = el.dataset.originalFlexDir;
+      el.style.alignItems = el.dataset.originalAlign;
+      el.style.gap = el.dataset.originalGap;
+    });
+
+    // Discard unsaved input data
+    document.getElementById('profile-form').reset();
+  }
+</script>
+
+<div class="memories-section glass" style="margin-top: 2rem; padding: 1.5rem; border-radius: 16px; position: relative;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3 style="margin: 0;">My Memories</h3>
+    <button class="btn-sm" onclick="openMemoryModal()"
+      style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-plus"></i> New Memory
+    </button>
+  </div>
+  <div class="memories-grid" id="memories-container"
+    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
+    {% for memory in memories %}
+    <div class="memory-card glass"
+      onclick='viewMemory({{ memory.id }}, "{{ memory.title|escapejs }}", "{{ memory.description|default:""|escapejs }}", "{{ memory.image.url|escapejs }}")'
+      style="background-image: url('{{ memory.image.url }}'); background-size: cover; background-position: center; min-height: 150px; border-radius: 12px; display: flex; align-items: flex-end; padding: 1rem; position: relative; overflow: hidden; cursor: pointer;">
+      <div
+        style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); z-index: 0;">
+      </div>
+      <p style="margin: 0; color: white; position: relative; z-index: 1; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">{{ memory.title }}</p>
+      
+      <!-- Delete Button -->
+      <button onclick="event.stopPropagation(); deleteMemory({{ memory.id }}, this)" 
+        style="position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2; background: linear-gradient(90deg, #ff5a5a, #ff2e2e); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+        <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
+      </button>
+    </div>
+    {% empty %}
+    <!-- Dummy pre-loaded memory to start with if they have none -->
+    <div class="memory-card glass"
+      onclick="viewMemory(0, 'Bali Trip', 'A wonderful dummy trip to Bali!', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80')"
+      style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80'); background-size: cover; background-position: center; min-height: 150px; border-radius: 12px; display: flex; align-items: flex-end; padding: 1rem; position: relative; overflow: hidden; cursor: pointer;">
+      <div
+        style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); z-index: 0;">
+      </div>
+      <p style="margin: 0; color: white; position: relative; z-index: 1; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Bali Trip</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- New Memory Overlay Form -->
+  <div id="memory-modal" class="glass"
+    style="display: none; position: absolute; inset: 0; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 16px; flex-direction: column; align-items: center; backdrop-filter: blur(8px); padding: 2rem; overflow-y: auto;">
+    <div class="glass-panel" style="width: 100%; max-width: 600px; margin: auto; position: relative; background: radial-gradient(ellipse at 30% 20%, rgba(90,120,255,0.25), transparent 45%), radial-gradient(ellipse at 70% 80%, rgba(46,196,255,0.18), transparent 50%), linear-gradient(180deg, #0F1C2E, #2B124C); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 2rem;">
+      <button onclick="closeMemoryModal()"
+        style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; opacity: 0.7;">&times;</button>
+
+      <h2 style="margin-top: 0; margin-bottom: 1.5rem; text-align: center;">Capture a Memory</h2>
+
+      <div id="image-preview-container" onclick="document.getElementById('memory-file-input').click()"
+        style="width: 100%; height: 300px; background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1.5rem; overflow: hidden; position: relative;">
+        <i class="fa-solid fa-image" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+        <p style="opacity: 0.5;">Click to select a photo</p>
+        <img id="memory-preview-img"
+          style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;">
+      </div>
+
+      <input type="file" id="memory-file-input" accept="image/*" style="display: none;"
+        onchange="previewMemoryImage(event)">
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <label style="opacity: 0.8; font-size: 0.9rem;">Where did you go?</label>
+          <input type="text" id="memory-title-input" placeholder="Title (e.g. Sunset in Santorini)"
+            style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <label style="opacity: 0.8; font-size: 0.9rem;">Tell the story</label>
+          <div style="position: relative; width: 100%; display: flex; flex-direction: column;">
+            
+            <div style="position: relative; display: flex; align-items: flex-start; width: 100%;">
+              <button type="button" id="memory-emoji-toggle" onclick="toggleMemoryEmoji()" style="position: absolute; left: 10px; top: 12px; background: transparent; border: none; color: #b3c5ff; font-size: 1.4rem; cursor: pointer; padding: 0; z-index: 2;">
+                  <i class="fa-regular fa-face-smile"></i>
+              </button>
+              <textarea id="memory-desc-input" rows="4" placeholder="Describe your experience..."
+                style="width: 100%; padding: 0.8rem 0.8rem 0.8rem 2.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; resize: none; box-sizing: border-box;"></textarea>
+            </div>
+            
+            <div id="memory-emoji-picker" style="display: none; gap: 10px; font-size: 1.4rem; cursor: pointer; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; margin-top: 5px; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <span onclick="addMemoryEmoji('🌅')" title="Sunset">🌅</span>
+              <span onclick="addMemoryEmoji('🥂')" title="Cheers">🥂</span>
+              <span onclick="addMemoryEmoji('🎉')" title="Party">🎉</span>
+              <span onclick="addMemoryEmoji('🤩')" title="Star Eyes">🤩</span>
+              <span onclick="addMemoryEmoji('❤️')" title="Heart">❤️</span>
+              <span onclick="addMemoryEmoji('✨')" title="Sparkles">✨</span>
+              <span onclick="addMemoryEmoji('📸')" title="Camera">📸</span>
+              <span onclick="addMemoryEmoji('📍')" title="Pin">📍</span>
+            </div>
+
+          </div>
+        </div>
+
+        <button onclick="submitMemory()"
+          style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 1rem; font-size: 1rem;">Save
+          Memory</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Memory Overlay Form -->
+  <div id="view-memory-modal" class="glass"
+    style="display: none; position: absolute; inset: 0; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 16px; flex-direction: column; align-items: center; backdrop-filter: blur(8px); padding: 2rem; overflow-y: auto;">
+    <div class="glass-panel"
+      style="width: 100%; max-width: 800px; margin: auto; position: relative; background: radial-gradient(ellipse at 30% 20%, rgba(90,120,255,0.25), transparent 45%), radial-gradient(ellipse at 70% 80%, rgba(46,196,255,0.18), transparent 50%), linear-gradient(180deg, #0F1C2E, #2B124C); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; align-items: center;">
+      <button onclick="closeViewMemoryModal()"
+        style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; opacity: 0.7;">&times;</button>
+      
+      <img id="view-memory-img" style="max-width: 100%; max-height: 50vh; border-radius: 12px; margin-bottom: 1.5rem; object-fit: contain;">
+      <h2 id="view-memory-title" style="margin-top: 0; margin-bottom: 1rem; text-align: center;"></h2>
+      <p id="view-memory-desc" style="text-align: center; opacity: 0.9; margin-bottom: 0; white-space: pre-wrap;"></p>
+    </div>
+  </div>
+
+</div>
+
+
+
+<script>
+  function addMemoryEmoji(emoji) {
+    const input = document.getElementById('memory-desc-input');
+    input.value += emoji;
+    input.focus();
+  }
+
+  function toggleMemoryEmoji() {
+    const picker = document.getElementById('memory-emoji-picker');
+    const btn = document.getElementById('memory-emoji-toggle');
+    if (picker.style.display === 'none' || picker.style.display === '') {
+      picker.style.display = 'flex';
+      btn.innerHTML = '<i class="fa-regular fa-keyboard"></i>';
+    } else {
+      picker.style.display = 'none';
+      btn.innerHTML = '<i class="fa-regular fa-face-smile"></i>';
+    }
+  }
+
+  function openMemoryModal() {
+    document.getElementById('memory-modal').style.display = 'flex';
+    document.querySelector('.memories-section').style.minHeight = '650px';
+  }
+
+  function closeMemoryModal() {
+    document.getElementById('memory-modal').style.display = 'none';
+    document.querySelector('.memories-section').style.minHeight = '';
+    
+    // reset emoji picker
+    const picker = document.getElementById('memory-emoji-picker');
+    const btn = document.getElementById('memory-emoji-toggle');
+    if (picker && btn) {
+      picker.style.display = 'none';
+      btn.innerHTML = '<i class="fa-regular fa-face-smile"></i>';
+    }
+
+    // Reset form
+    document.getElementById('memory-preview-img').style.display = 'none';
+    document.getElementById('memory-preview-img').src = '';
+    document.getElementById('image-preview-container').querySelector('i').style.display = 'block';
+    document.getElementById('image-preview-container').querySelector('p').style.display = 'block';
+    document.getElementById('memory-title-input').value = '';
+    document.getElementById('memory-desc-input').value = '';
+    document.getElementById('memory-file-input').value = '';
+  }
+
+  function previewMemoryImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const preview = document.getElementById('memory-preview-img');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        document.getElementById('image-preview-container').querySelector('i').style.display = 'none';
+        document.getElementById('image-preview-container').querySelector('p').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function submitMemory() {
+    const fileInput = document.getElementById('memory-file-input');
+    const titleInput = document.getElementById('memory-title-input');
+    const descInput = document.getElementById('memory-desc-input');
+
+    if (!fileInput.files[0] || !titleInput.value) {
+      alert("Please select a photo and enter a title.");
+      return;
+    }
+
+    let formData = new FormData();
+    formData.append('title', titleInput.value);
+    formData.append('description', descInput.value);
+    formData.append('image', fileInput.files[0]);
+
+    fetch("{% url 'account:add_memory' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          const container = document.getElementById('memories-container');
+          const memoryDiv = document.createElement('div');
+          memoryDiv.className = 'memory-card glass';
+          memoryDiv.style.backgroundImage = `url('${data.image_url}')`;
+          memoryDiv.style.backgroundSize = 'cover';
+          memoryDiv.style.backgroundPosition = 'center';
+          memoryDiv.style.minHeight = '150px';
+          memoryDiv.style.borderRadius = '12px';
+          memoryDiv.style.display = 'flex';
+          memoryDiv.style.alignItems = 'flex-end';
+          memoryDiv.style.padding = '1rem';
+          memoryDiv.style.position = 'relative';
+          memoryDiv.style.overflow = 'hidden';
+
+          // Create a clickable card
+          memoryDiv.style.cursor = 'pointer';
+          memoryDiv.onclick = function() {
+              viewMemory(data.memory_id, data.title, data.description || '', data.image_url);
+          };
+
+          memoryDiv.innerHTML = `
+                <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); z-index: 0;"></div>
+                <p style="margin: 0; color: white; position: relative; z-index: 1; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${data.title}</p>
+                <button onclick="event.stopPropagation(); deleteMemory(${data.memory_id}, this)" 
+                  style="position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2; background: linear-gradient(90deg, #ff5a5a, #ff2e2e); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                  <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
+                </button>
+              `;
+
+          container.appendChild(memoryDiv);
+
+          // Trigger confetti
+          if (typeof confetti !== 'undefined') {
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
+          }
+
+          closeMemoryModal();
+        } else {
+          alert("Error saving memory: " + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("Failed to save memory.");
+      });
+  }
+
+  function viewMemory(id, title, desc, url) {
+    if (id === 0 && title === 'Bali Trip') {
+      // Dummy memory click
+      document.getElementById('view-memory-img').src = url;
+      document.getElementById('view-memory-title').textContent = title;
+      document.getElementById('view-memory-desc').textContent = desc;
+      document.getElementById('view-memory-modal').style.display = 'flex';
+      document.querySelector('.memories-section').style.minHeight = '600px';
+      return;
+    }
+
+    document.getElementById('view-memory-img').src = url;
+    document.getElementById('view-memory-title').textContent = title;
+    document.getElementById('view-memory-desc').textContent = desc || 'No description provided.';
+    document.getElementById('view-memory-modal').style.display = 'flex';
+    document.querySelector('.memories-section').style.minHeight = '600px';
+  }
+
+  function closeViewMemoryModal() {
+    document.getElementById('view-memory-modal').style.display = 'none';
+    document.querySelector('.memories-section').style.minHeight = '';
+  }
+
+  function deleteMemory(id, btnElement) {
+    showConfirmModal(null, () => {
+      // Using fetch with the delete URL pattern
+      const deleteUrl = "{% url 'account:add_memory' %}".replace('add-memory', 'delete-memory/' + id);
+      fetch(deleteUrl, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          const card = btnElement.closest('.memory-card');
+          card.remove();
+        } else {
+          alert("Error deleting memory: " + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("Failed to delete memory.");
+      });
+    }, "Are you sure you want to delete this memory?");
+  }
+</script>
+
+<div class="map-section glass" style="margin-top: 2rem; padding: 1.5rem; border-radius: 16px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3 style="margin: 0;">My Travel Map</h3>
+    <button type="button" class="btn-sm" id="undo-pin-btn"
+      style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; cursor: pointer;">Undo
+      Last Pin</button>
+  </div>
+
+  <!-- Set z-index 1 so map controls don't overlay site headers. -->
+  <div id="travelMap"
+    style="height: 400px; width: 100%; border-radius: 12px; z-index: 1; border: 1px solid rgba(255,255,255,0.2); overflow: hidden;">
+  </div>
+
+  <!-- Moved instructions below the map -->
+  <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 1rem; margin-bottom: 0; text-align: center;">Click anywhere on
+    the map to drop a pin. Click on an existing pin to remove it.</p>
+</div>
+
+<!-- Confetti JS for party popper effect -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize map focused on India
+    var map = L.map('travelMap').setView([20.5937, 78.9629], 4);
+
+    // Use CARTO Voyager map tiles for English labeling globally
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Unique storage key for the user
+    var mapKey = 'travelPins_{{ user.username }}';
+
+    // Load saved pins from local browser storage
+    var savedPins = JSON.parse(localStorage.getItem(mapKey) || '[]');
+    var markers = [];
+
+    function removePin(marker, latlng) {
+      map.removeLayer(marker);
+      markers = markers.filter(m => m !== marker);
+      // Compare stringified versions in case object references differ
+      savedPins = savedPins.filter(p => p.lat !== latlng.lat || p.lng !== latlng.lng);
+      localStorage.setItem(mapKey, JSON.stringify(savedPins));
+    }
+
+    // Render saved pins
+    savedPins.forEach(function (latlng) {
+      var marker = L.marker(latlng).addTo(map);
+      markers.push(marker);
+
+      // Remove pin when clicked directly
+      marker.on('click', function () {
+        removePin(marker, latlng);
+      });
+    });
+
+    // Add pin on click
+    map.on('click', function (e) {
+      var marker = L.marker(e.latlng).addTo(map);
+      markers.push(marker);
+      savedPins.push(e.latlng);
+      localStorage.setItem(mapKey, JSON.stringify(savedPins));
+
+      marker.on('click', function () {
+        removePin(marker, e.latlng);
+      });
+
+      // Trigger the party popper effect!
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    });
+
+    // Undo button behavior attached
+    document.getElementById('undo-pin-btn').addEventListener('click', function () {
+      if (markers.length > 0) {
+        var lastMarker = markers[markers.length - 1];
+        var lastLatlng = savedPins[savedPins.length - 1];
+        removePin(lastMarker, lastLatlng);
+      }
+    });
+  });
+</script>
+{% endblock %}

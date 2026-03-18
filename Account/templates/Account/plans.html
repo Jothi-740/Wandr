@@ -1,0 +1,354 @@
+{% extends "Account/account_base.html" %}
+
+{% block account_content %}
+<div class="topbar topbar-col" style="margin-bottom: 2rem;">
+  <a href="{% url 'account:dashboard' %}" class="back-btn">
+    <i class="fa fa-arrow-left"></i>
+  </a>
+  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <h2 style="margin: 0;">My Trip Planners</h2>
+    <button class="btn-sm" onclick="openPlanModal()" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; cursor: pointer; padding: 12px 24px; border-radius: 10px; font-weight: 600; box-shadow: 0 4px 15px rgba(90,120,255,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <i class="fa-solid fa-plus" style="margin-right: 8px;"></i> Create New Itinerary
+    </button>
+  </div>
+</div>
+
+<!-- Trip Planners List -->
+<div class="plans-container" style="display: flex; flex-direction: column; gap: 3rem;">
+
+  {% for plan in plans %}
+  <div class="plan-card glass-panel" id="plan-{{ plan.id }}" style="padding: 2.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255, 255, 255, 0.03); position: relative; scroll-margin-top: 2rem;">
+    
+    <!-- Plan Header (Sketch style) -->
+    <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; margin-bottom: 2rem;">
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <span style="font-weight: 600; min-width: 120px; color: #b3c5ff;">Title of the Trip:</span>
+          <div style="background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex: 1; font-size: 1.2rem; color: #fff;">
+            {{ plan.title }}
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <span style="font-weight: 600; min-width: 120px; color: #b3c5ff;">Destination:</span>
+          <div style="background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex: 1; color: #fff;">
+            {{ plan.destination }}
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 15px; min-width: 240px;">
+        <div style="display: flex; gap: 10px; width: 100%;">
+          <button class="btn-sm" onclick="openPlanModal('{{ plan.id }}', '{{ plan.title|escapejs }}', '{{ plan.destination|escapejs }}', '{{ plan.start_date|date:'Y-m-d' }}', '{{ plan.end_date|date:'Y-m-d' }}', '{{ plan.description|escapejs }}')" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: #fff; border: none; padding: 5px 15px; flex: 1; min-width: 120px; border-radius: 8px; font-weight: 600; cursor: pointer;">Edit Trip</button>
+          <form action="{% url 'account:delete_plan' plan.id %}" method="POST" style="margin: 0; flex: 1;" onsubmit="return confirm('Are you sure you want to delete this entire trip itinerary?');">
+            {% csrf_token %}
+            <button type="submit" class="btn-sm" style="background: linear-gradient(90deg, #ff5a5a, #ff2e2e); color: #fff; border: none; padding: 5px 15px; width: 100%; min-width: 120px; border-radius: 8px; font-weight: 600; cursor: pointer;">Delete Trip</button>
+          </form>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; width: 100%; box-sizing: border-box;">
+          <div style="margin-bottom: 5px;"><span style="color: #b3c5ff; font-weight: 500;">Start Date:</span> {{ plan.start_date|date:"F j, Y" }}</div>
+          <div><span style="color: #b3c5ff; font-weight: 500;">End Date:</span> {{ plan.end_date|date:"F j, Y" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes Section (Sketch style) -->
+    <div style="margin-bottom: 2.5rem;">
+      <div style="font-weight: 600; color: #b3c5ff; margin-bottom: 10px;">Notes</div>
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; min-height: 80px; line-height: 1.6; color: rgba(255,255,255,0.9);">
+        {% if plan.description %}{{ plan.description }}{% else %}<span style="opacity: 0.4; font-style: italic;">No notes added for this trip yet.</span>{% endif %}
+      </div>
+    </div>
+
+    <!-- Scrollable Days Area -->
+    <div class="itinerary-days" style="display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1.5rem; align-items: stretch; scrollbar-width: thin;">
+      
+      {% for day in plan.days.all %}
+      <!-- Day Card (Sketch style) -->
+      <div class="day-card glass" id="day-card-{{ day.id }}" style="min-width: 320px; border-radius: 20px; padding: 1.8rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1;">
+        
+        <!-- Day Header (Sketch style) -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+          <div id="day-info-{{ day.id }}">
+            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Day {{ forloop.counter }}</h3>
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 12px;">
+              <span style="font-weight: 600; color: #b3c5ff; font-size: 0.9rem;">Title:</span>
+              <div style="background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); min-width: 150px; color: #fff; font-size: 0.95rem;">
+                {% if day.label %}{{ day.label }}{% else %}<span style="opacity: 0.3;">...</span>{% endif %}
+              </div>
+            </div>
+          </div>
+          <div style="position: relative;">
+            <button class="icon-btn" onclick="toggleOptionsMenu(event, 'options-{{ day.id }}')" style="background: transparent; border: none; color: #fff; cursor: pointer; padding: 5px; font-size: 1.2rem; opacity: 0.6;">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+            <div id="options-{{ day.id }}" class="dropdown-popup glass" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1e2e; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; min-width: 140px; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.5);">
+              <div style="position: relative; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <span onclick="toggleInlineEditDay('{{ day.id }}', true)" style="cursor: pointer; display: block;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Edit</span>
+                <i class="fa-solid fa-xmark" onclick="closeAllOptions()" style="position: absolute; right: 15px; top: 15px; font-size: 0.9rem; opacity: 0.4; cursor: pointer;"></i>
+              </div>
+              <form action="{% url 'account:delete_day' day.id %}" method="POST" style="margin: 0;" onsubmit="return showConfirmModal(event, this, 'Are you sure you want to delete this day and all its items?');">
+                {% csrf_token %}
+                <button type="submit" style="width: 100%; text-align: left; padding: 12px 15px; cursor: pointer; background: transparent; border: none; color: #ff5a5a; font-family: inherit; display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(255,90,90,0.05)'" onmouseout="this.style.background='transparent'">
+                   Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inline Edit Day Form (Sketch style Absolute Overlay) -->
+        <div id="edit-day-form-{{ day.id }}" style="display: none; position: absolute; inset: 0; background: #1a1e2e; border-radius: 20px; padding: 1.8rem; z-index: 10; border: 1px solid rgba(255,255,255,0.2); flex-direction: column; box-sizing: border-box;">
+          <!-- Fixed Header -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Day {{ forloop.counter }}</h3>
+            <div style="opacity: 0.6; padding: 5px;">
+              <i class="fa-solid fa-ellipsis" style="font-size: 1.2rem;"></i>
+            </div>
+          </div>
+          
+          <form method="POST" action="/account/edit-day/{{ day.id }}/" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+            {% csrf_token %}
+            <!-- Scrollable Content Area -->
+            <div class="custom-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 8px; margin-bottom: 15px;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-weight: 600; color: #b3c5ff; font-size: 0.9rem;">Day Title:</span>
+                <input type="text" name="label" value="{{ day.label|default:'' }}" placeholder="..." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 15px; color: #fff; outline: none; width: 100%; box-sizing: border-box; font-size: 0.95rem;">
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-weight: 600; color: #b3c5ff; font-size: 0.9rem;">Notes:</span>
+                <textarea name="description" placeholder="..." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none; font-size: 0.95rem; resize: none; width: 100%; box-sizing: border-box; min-height: 100px;">{{ day.description|default:'' }}</textarea>
+              </div>
+            </div>
+            
+            <!-- Fixed Actions Area -->
+            <div style="display: flex; gap: 12px; margin-top: auto; padding-top: 10px; background: #1a1e2e; border-top: 1px solid rgba(255,255,255,0.05);">
+              <button type="submit" style="flex: 1; background: linear-gradient(90deg, #5a78ff, #2ec4ff); border: none; padding: 12px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(90,120,255,0.2);">Save</button>
+              <button type="button" onclick="toggleInlineEditDay('{{ day.id }}', false)" style="flex: 1; background: linear-gradient(90deg, #ff5a5a, #ff2e2e); border: none; padding: 12px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(255,90,90,0.2);">Discard</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Places List -->
+        <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; flex: 1;">
+          {% for item in day.items.all %}
+          <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 10px;">
+            <i class="fa-solid fa-location-dot" style="color: #2ec4ff; font-size: 0.9rem;"></i>
+            <span style="flex: 1; font-size: 1.05rem;">{{ item.title }}</span>
+            <form action="{% url 'account:delete_item' item.id %}" method="POST" style="margin: 0;">
+              {% csrf_token %}
+              <button type="submit" style="background: transparent; border: none; color: #ff5a5a; opacity: 0; cursor: pointer; padding: 5px; transition: opacity 0.2s;" title="Remove" class="delete-item-btn"><i class="fa-solid fa-xmark"></i></button>
+            </form>
+          </li>
+          {% empty %}
+          <li style="opacity: 0.2; font-style: italic; text-align: center; padding: 10px;">Empty day</li>
+          {% endfor %}
+        </ul>
+
+        <!-- Inline Add Place Search (Restricted to card area) -->
+        <div id="add-item-form-{{ day.id }}" style="display: none; margin-top: auto;">
+          <form method="POST" action="{% url 'account:add_item' day.id %}" style="display: flex; flex-direction: column; gap: 8px;">
+            {% csrf_token %}
+            <div style="position: relative;">
+              <input type="text" name="title" placeholder="Where next?" required 
+                style="width: 100%; padding: 10px 35px 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: white; outline: none; font-size: 0.9rem; box-sizing: border-box;">
+              <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 10px; top: 12px; font-size: 0.8rem; opacity: 0.5;"></i>
+            </div>
+            <div style="display: flex; gap: 5px;">
+              <button type="submit" style="flex: 1; background: linear-gradient(90deg, #5a78ff, #2ec4ff); border: none; border-radius: 6px; padding: 6px; color: #fff; font-weight: 700; cursor: pointer; font-size: 0.85rem;">Add</button>
+              <button type="button" onclick="toggleInlineAddForm('{{ day.id }}', false)" style="background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 6px; color: #fff; cursor: pointer; font-size: 0.85rem;">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Add Place Button (Sketch style) -->
+        <div id="add-item-trigger-{{ day.id }}" onclick="toggleInlineAddForm('{{ day.id }}', true)" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); border-radius: 8px; padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; color: #fff; font-weight: 700; transition: all 0.2s; margin-top: auto;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(46,196,255,0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+          Add place <i class="fa-solid fa-location-dot"></i>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Add Day Button (Sketch Style) -->
+      <form action="{% url 'account:add_day' plan.id %}" method="POST" style="margin: 0; display: flex;">
+        {% csrf_token %}
+        <button type="submit" class="day-card" style="min-width: 280px; border-radius: 20px; background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,255,255,0.2); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; color: #fff; transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.5)'; this.style.background='rgba(255,255,255,0.05)'">
+          <div style="width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1a1e2e; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <span style="font-size: 1.1rem; font-weight: 600;">Add Day</span>
+        </button>
+      </form>
+
+    </div>
+  </div>
+  {% empty %}
+  <div class="glass-panel" style="padding: 5rem 2rem; border-radius: 20px; text-align: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);">
+    <i class="fa-solid fa-map-location-dot" style="font-size: 5rem; color: #b3c5ff; margin-bottom: 1.5rem; opacity: 0.5;"></i>
+    <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Begin Your Journey</h3>
+    <p style="opacity: 0.6; margin-bottom: 2rem;">No trip planners found. Create your first itinerary to get started!</p>
+    <button class="btn-sm" onclick="openPlanModal()" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: white; border: none; padding: 15px 30px; font-size: 1.1rem;">Create New Itinerary</button>
+  </div>
+  {% endfor %}
+
+</div>
+
+<style>
+  .itinerary-days::-webkit-scrollbar { height: 6px; }
+  .itinerary-days::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+  .itinerary-days::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  .itinerary-days::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  
+  .day-card:hover { transform: translateY(-8px); border-color: rgba(90,120,255,0.4) !important; z-index: 10 !important; background: rgba(255, 255, 255, 0.05); }
+  .day-card:hover .delete-item-btn { opacity: 0.4 !important; }
+  .delete-item-btn:hover { opacity: 1 !important; }
+
+  .custom-scroll::-webkit-scrollbar { width: 6px; }
+  .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+  .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  
+  /* Ensure container doesn't clip children on hover */
+  .itinerary-days { padding-top: 20px; margin-top: -20px; }
+
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; cursor: pointer; }
+</style>
+
+<!-- Add/Edit Trip Modal -->
+<div id="plan-modal" class="glass" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 1rem;">
+  <div class="glass-panel" style="width: 100%; max-width: 550px; background: #1a1e2e; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 2.5rem; position: relative;">
+    <button onclick="closePlanModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.6;">&times;</button>
+    <h3 id="plan-modal-title" style="margin-bottom: 2rem; font-size: 1.6rem;">Create New Trip</h3>
+    <form method="POST" action="{% url 'account:plans' %}" style="display: flex; flex-direction: column; gap: 1.2rem;">
+      {% csrf_token %}
+      <input type="hidden" name="plan_id" id="plan-id-input">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Trip Title</label>
+        <input type="text" name="title" id="plan-title-input" required style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Destination</label>
+        <input type="text" name="destination" id="plan-destination-input" required style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 0.9rem; color: #b3c5ff;">Start Date</label>
+          <input type="date" name="start_date" id="plan-start-input" required style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 0.9rem; color: #b3c5ff;">End Date</label>
+          <input type="date" name="end_date" id="plan-end-input" required style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Notes</label>
+        <textarea name="description" id="plan-desc-input" rows="4" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none; resize: none;"></textarea>
+      </div>
+      <button type="submit" class="btn-sm" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: 600; margin-top: 10px;">Save Itinerary</button>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Day Modal -->
+<div id="day-modal" class="glass" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 1rem;">
+  <div class="glass-panel" style="width: 100%; max-width: 450px; background: #1a1e2e; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 2.5rem; position: relative;">
+    <button onclick="closeDayModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.6;">&times;</button>
+    <h3 id="day-modal-title" style="margin-bottom: 2rem; font-size: 1.5rem;">Edit Day</h3>
+    <form id="day-edit-form" method="POST" action="" style="display: flex; flex-direction: column; gap: 1.2rem;">
+      {% csrf_token %}
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Day Label (e.g. Shopping Trip)</label>
+        <input type="text" name="label" id="day-label-input" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none;">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.9rem; color: #b3c5ff;">Specific Notes for this day</label>
+        <textarea name="description" id="day-description-input" rows="3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #fff; outline: none; resize: none;"></textarea>
+      </div>
+      <button type="submit" class="btn-sm" style="background: linear-gradient(90deg, #5a78ff, #2ec4ff); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: 600;">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- Add Place Modal -->
+<div id="add-item-modal" class="glass" style="display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; backdrop-filter: blur(15px);">
+  <div class="glass-panel" style="width: 100%; max-width: 500px; background: #fff; color: #1a1a1a; border-radius: 24px; padding: 2rem; position: relative;">
+    <button onclick="closeAddItemModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; border: none; background: none; font-size: 1.8rem; cursor: pointer; color: #666;">&times;</button>
+    <h3 id="add-item-modal-title" style="text-align: center; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 800;">Add a place</h3>
+    <form id="add-item-form" method="POST" action="">
+      {% csrf_token %}
+      <div style="position: relative;">
+        <input type="text" name="title" id="item-search-input" placeholder="Search or type a place name..." required style="width: 100%; border-radius: 12px; border: none; background: #f0f2f5; padding: 15px 45px 15px 20px; font-size: 1.1rem; outline: none; font-weight: 500;">
+        <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 18px; top: 18px; color: #999;"></i>
+      </div>
+      <div id="search-hints" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 5px;">
+        <p style="font-size: 0.9rem; color: #888; text-align: center;">Press Enter to add.</p>
+      </div>
+      <button type="submit" style="display: none;"></button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openPlanModal(id = '', title = '', dest = '', start = '', end = '', desc = '') {
+    const modal = document.getElementById('plan-modal');
+    modal.style.display = 'flex';
+    document.getElementById('plan-modal-title').innerText = id ? 'Edit Trip' : 'Create New Trip';
+    document.getElementById('plan-id-input').value = id;
+    document.getElementById('plan-title-input').value = title;
+    document.getElementById('plan-destination-input').value = dest;
+    document.getElementById('plan-start-input').value = start;
+    document.getElementById('plan-end-input').value = end;
+    document.getElementById('plan-desc-input').value = desc;
+  }
+  function closePlanModal() { document.getElementById('plan-modal').style.display = 'none'; }
+
+  function toggleInlineEditDay(dayId, show) {
+    const form = document.getElementById('edit-day-form-' + dayId);
+    if (show) {
+      form.style.display = 'flex';
+      closeAllOptions();
+    } else {
+      form.style.display = 'none';
+    }
+  }
+
+  function openDayModal(id, label, desc, num) {
+    // Deprecated for inline version
+    toggleInlineEditDay(id, true);
+  }
+
+  function openAddItemModal(id, num) {
+    // Deprecated for inline version
+    toggleInlineAddForm(id, true);
+  }
+
+  function toggleInlineAddForm(dayId, show) {
+    const trigger = document.getElementById('add-item-trigger-' + dayId);
+    const form = document.getElementById('add-item-form-' + dayId);
+    if (show) {
+      trigger.style.display = 'none';
+      form.style.display = 'block';
+      form.querySelector('input').focus();
+    } else {
+      trigger.style.display = 'flex';
+      form.style.display = 'none';
+    }
+  }
+
+  function toggleOptionsMenu(event, id) {
+    event.stopPropagation();
+    const menu = document.getElementById(id);
+    const isOpen = menu.style.display === 'block';
+    closeAllOptions();
+    if (!isOpen) menu.style.display = 'block';
+  }
+
+  function closeAllOptions() {
+    document.querySelectorAll('.dropdown-popup').forEach(el => el.style.display = 'none');
+  }
+
+  window.onclick = function(event) {
+    if (!event.target.closest('.icon-btn')) closeAllOptions();
+  };
+</script>
+
+{% endblock %}

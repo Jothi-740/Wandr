@@ -1,0 +1,180 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block title %}{{ title }} | Wandr Administration{% endblock %}
+
+{% block branding %}
+<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <img src="{% static 'images/logo.png' %}" alt="Wandr Logo" style="height: 48px; width: auto;">
+        <h1 id="site-name" style="margin: 0; line-height: 1;">
+            <a href="{% url 'admin:index' %}" style="color: #2ec4ff !important; text-decoration: none; font-weight: 700; font-size: 26px; letter-spacing: -0.5px;">Wandr Admin</a>
+        </h1>
+    </div>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <a href="/" target="_blank" style="padding: 10px 22px; background: rgba(46, 196, 255, 0.1); border: 1px solid rgba(46, 196, 255, 0.2); border-radius: 30px; color: #2ec4ff !important; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 10px;">
+            <i class="fa fa-external-link-alt" style="font-size: 12px;"></i> Visit site
+        </a>
+        <a href="{% url 'admin:logout' %}" style="padding: 10px 22px; background: rgba(255, 82, 82, 0.1); border: 1px solid rgba(255, 82, 82, 0.2); border-radius: 30px; color: #ff5252 !important; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 10px;">
+            <i class="fa fa-power-off" style="font-size: 12px;"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Layout Based on Final User Sketch */
+
+/* Main Background */
+body {
+    background: 
+      radial-gradient(ellipse at 30% 20%, rgba(90,120,255,0.25), transparent 45%),
+      radial-gradient(ellipse at 70% 80%, rgba(46,196,255,0.18), transparent 50%),
+      linear-gradient(180deg, #0F1C2E, #2B124C) !important;
+    background-attachment: fixed !important;
+    color: #FFFFFF !important;
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    margin: 0;
+}
+
+#container {
+    display: block !important;
+    width: 100% !important;
+}
+
+/* 1. TOP HEADER */
+#header {
+    height: 85px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 50px !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1001 !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 2. LEFT SIDEBAR */
+#user-tools {
+    position: fixed !important;
+    top: 85px !important;
+    left: 0 !important;
+    width: 260px !important;
+    height: calc(100vh - 85px) !important;
+    background: rgba(15, 28, 46, 0.7) !important;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 40px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    z-index: 1000 !important;
+    margin: 0 !important;
+}
+
+#user-tools .nav-links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#user-tools a {
+    color: rgba(255,255,255,0.6) !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    padding: 15px 30px !important;
+    width: 100% !important;
+    border-left: 3px solid transparent;
+    transition: 0.3s;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    box-sizing: border-box;
+}
+
+#user-tools a:hover, #user-tools a.active {
+    background: rgba(46, 196, 255, 0.08) !important;
+    color: #2ec4ff !important;
+    border-left: 3px solid #2ec4ff;
+}
+
+/* 3. MAIN CONTENT AREA */
+#main {
+    margin-top: 85px !important;
+    margin-left: 260px !important;
+    padding: 0 !important;
+    min-height: calc(100vh - 85px);
+}
+
+#content { padding: 40px !important; }
+
+/* Hide default user greeting in sidebar */
+#branding { width: 100% !important; }
+#user-tools { color: transparent !important; }
+#user-tools strong { display: none !important; }
+
+/* Hide Dark Mode Toggle */
+#theme-toggle, .theme-toggle, button.theme-toggle, [data-theme-switcher] {
+    display: none !important;
+}
+
+/* Premium scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(46,196,255,0.15); border-radius: 10px; }
+
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const sidebar = document.getElementById("user-tools");
+        if (!sidebar) return;
+
+        // Reconstruct the sidebar according to latest sketch
+        sidebar.innerHTML = `
+            <div class="nav-links">
+                <a href="/admin/" id="nav-dashboard"><i class="fa fa-th-large"></i> Dashboard</a>
+                <a href="/admin/auth/user/" id="nav-users"><i class="fa fa-users"></i> Users</a>
+                <a href="/admin/Account/userprofile/" id="nav-profiles"><i class="fa fa-id-card"></i> User Profiles</a>
+                <a href="/admin/Account/travelplan/" id="nav-trips"><i class="fa fa-map-marked-alt"></i> Travel Plans</a>
+                <a href="/admin/Account/memory/" id="nav-memories"><i class="fa fa-images"></i> Memories</a>
+                <a href="/admin/Account/usersettings/" id="nav-settings"><i class="fa fa-sliders-h"></i> User Settings</a>
+            </div>
+        `;
+
+        // Highlight active link
+        const currentPath = window.location.pathname;
+        if (currentPath === "/admin/") {
+            document.getElementById("nav-dashboard").classList.add("active");
+        } else if (currentPath.includes("/admin/auth/user")) {
+            document.getElementById("nav-users").classList.add("active");
+        } else if (currentPath.includes("userprofile")) {
+            document.getElementById("nav-profiles").classList.add("active");
+        } else if (currentPath.includes("travelplan") || currentPath.includes("travelday") || currentPath.includes("itinerary")) {
+            document.getElementById("nav-trips").classList.add("active");
+        } else if (currentPath.includes("memory")) {
+            document.getElementById("nav-memories").classList.add("active");
+        } else if (currentPath.includes("usersettings")) {
+            document.getElementById("nav-settings").classList.add("active");
+        }
+    });
+</script>
+{% endblock %}

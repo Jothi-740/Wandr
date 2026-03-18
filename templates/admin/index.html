@@ -1,0 +1,622 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Dashboard Layout Transformation */
+    #content-main {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Centre-align the dashboard content */
+    .dashboard-wrapper {
+        max-width: 1200px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Use flex to properly centre the dashboard wrapper */
+    #content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+
+    /* Center the main Django admin title (h1) */
+    #content h1 {
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .dashboard-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 35px;
+        text-align: center;
+    }
+
+    .welcome-text h2 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+
+    .welcome-text p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 15px;
+        margin: 0;
+    }
+
+    /* Analytics Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        /* Adjusted for better justification */
+        justify-content: space-between;
+        gap: 30px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 25px;
+        transition: 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(46, 196, 255, 0.3);
+        transform: translateY(-5px);
+    }
+
+    .stat-value {
+        font-size: 36px;
+        font-weight: 700;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-top: 8px;
+        display: block;
+    }
+
+    .trend-up {
+        padding: 4px 10px;
+        border-radius: 10px;
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+        font-size: 12px;
+    }
+
+    /* Performance Section */
+    .performance-card {
+        margin-bottom: 30px;
+        height: 400px;
+    }
+
+    /* List Section */
+    .list-card {
+        padding: 30px;
+    }
+
+    .list-card h3 {
+        font-size: 20px;
+        margin-top: 0;
+        margin-bottom: 25px;
+        color: #2ec4ff;
+    }
+
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .dashboard-table th {
+        text-align: left;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 11px;
+        text-transform: uppercase;
+        padding-bottom: 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .dashboard-table td {
+        padding: 18px 0;
+        color: #fff;
+        font-size: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .status-badge {
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* Side Column */
+    .side-widgets {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .gauge-card {
+        text-align: center;
+        height: 320px;
+    }
+
+    /* App list override */
+    .app-list-custom {
+        width: 100%;
+    }
+
+    .sidebar-section-title {
+        font-size: 16px;
+        color: #fff;
+        margin-bottom: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Hide standard recent actions so we can use our custom one */
+    #content-related {
+        display: none !important;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        color: #fff !important;
+        text-decoration: none !important;
+        margin-bottom: 12px;
+        transition: 0.3s;
+    }
+
+    .action-btn:hover {
+        background: rgba(46, 196, 255, 0.15);
+        border-color: #2ec4ff;
+        transform: scale(1.02);
+    }
+
+    /* Glass Modal Styles */
+    .glass-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .glass-modal-content {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 30px;
+        padding: 40px;
+        width: 90%;
+        max-width: 550px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        position: relative;
+        color: #fff;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        font-size: 28px;
+        font-weight: bold;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .close-modal:hover {
+        color: #ff5252;
+    }
+
+    .glass-modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 25px;
+        font-size: 28px;
+        text-align: center;
+        background: linear-gradient(135deg, #fff, #2ec4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .glass-modal-content label {
+        display: block;
+        margin-top: 15px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+    }
+
+    .glass-modal-content input,
+    .glass-modal-content select,
+    .glass-modal-content textarea {
+        width: 100%;
+        padding: 12px 15px;
+        margin-top: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+
+    .glass-modal-content select option {
+        background: #1a1a2e;
+        color: #fff;
+    }
+
+    .glass-modal-content button[type="submit"] {
+        width: 100%;
+        padding: 15px;
+        margin-top: 30px;
+        background: linear-gradient(135deg, #2ec4ff, #5a78ff);
+        border: none;
+        border-radius: 15px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .glass-modal-content button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(46, 196, 255, 0.3);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+    }
+
+    .radio-group div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .radio-group input[type="radio"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .radio-group label {
+        margin: 0;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="dashboard-wrapper">
+
+        <!-- Top Header (Inside Content) -->
+        <div class="dashboard-header">
+            <div class="welcome-text">
+                <h2 style="margin-bottom: 0; font-size: 42px;">Welcome, {{ user.get_full_name|default:user.username }}
+                    👋</h2>
+                <p style="font-size: 15px; opacity: 0.6; margin-top: 10px;">{% now "l, jS F Y" %}</p>
+            </div>
+        </div>
+
+        <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="card">
+                <span class="stat-value">{{ user_count|default:"0" }} <span class="trend-up">+100%</span></span>
+                <span class="stat-label">Explorers Registered</span>
+            </div>
+            <div class="card">
+                <span class="stat-value">1.4ms <span class="trend-up" style="color: #2ec4ff;">Good</span></span>
+                <span class="stat-label">DB Latency</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Left: Analytics and Activity -->
+            <div class="main-panel">
+                <div class="card performance-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <h3 style="margin: 0; color: #fff; font-size: 20px;">System Traffic</h3>
+                        <div style="display: flex; gap: 5px;">
+                            {% for u in latest_users %}
+                            <div
+                                style="width: 32px; height: 32px; border-radius: 50%; background: #2ec4ff; border: 2px solid #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-left: -10px;">
+                                {{ u.username|first|upper }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+
+                <div class="card list-card">
+                    <h3>Global Activity Logs</h3>
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Entry</th>
+                                <th>Model</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% load log %}
+                            {% get_admin_log 8 as admin_log for_user user %}
+                            {% for entry in admin_log %}
+                            <tr>
+                                <td>
+                                    <span class="status-badge"
+                                        style="{% if entry.is_addition %}background: rgba(0, 255, 136, 0.1); color: #00ff88;{% elif entry.is_deletion %}background: rgba(255, 82, 82, 0.1); color: #ff5252;{% else %}background: rgba(46, 196, 255, 0.1); color: #2ec4ff;{% endif %}">
+                                        {% if entry.is_addition %}ADD{% elif entry.is_change %}EDIT{% else %}DEL{% endif
+                                        %}
+                                    </span>
+                                </td>
+                                <td style="font-weight: 500;">{{ entry.object_repr|truncatechars:45 }}</td>
+                                <td><span style="color: rgba(255,255,255,0.4); font-size: 13px;">{{
+                                        entry.content_type|capfirst }}</span></td>
+                                <td>{{ entry.action_time|timesince }} ago</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4"
+                                    style="text-align: center; color: rgba(255,255,255,0.2); padding: 50px 0;">No logs
+                                    found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Database Controls and Status -->
+            <div class="side-widgets">
+                <div class="card">
+                    <h3 class="sidebar-section-title"><i class="fa fa-life-ring"></i> Quick Help</h3>
+                    <button onclick="openModal('supportModal')" class="action-btn"
+                        style="width: 100%; text-align: left; cursor: pointer;">
+                        <i class="fa fa-headset"></i> Get Support
+                    </button>
+                    <button onclick="openModal('feedbackModal')" class="action-btn"
+                        style="width: 100%; text-align: left; cursor: pointer;">
+                        <i class="fa fa-comment-dots"></i> Give Feedback
+                    </button>
+                </div>
+
+                <div class="card gauge-card">
+                    <div style="height: 180px; width: 100%;">
+                        <canvas id="gaugeChart"></canvas>
+                    </div>
+                    <h3 style="margin: 20px 0 5px; color: #fff;">Health Score</h3>
+                    <p style="color: #00ff88; font-weight: 600;">98% Efficient</p>
+                    <div
+                        style="margin-top: 15px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div
+                            style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); grid-column: span 2;">
+                            <div style="font-size: 16px; font-weight: bold;">{{ user_count }}</div>
+                            <div style="font-size: 10px; opacity: 0.5;">REGISTERED EXPLORERS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-list-custom">
+                    {% include "admin/app_list.html" with app_list=app_list %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="supportModal" class="glass-modal">
+        <div class="glass-modal-content">
+            <span class="close-modal" onclick="closeModal('supportModal')">&times;</span>
+            <h2>Wandr Support</h2>
+            <form id="supportFormAction">
+                <label for="sup-name">Your Name</label>
+                <input type="text" id="sup-name" name="name" placeholder="Enter your name" required>
+
+                <label for="sup-email">Your Email</label>
+                <input type="email" id="sup-email" name="email" placeholder="Enter your email" required>
+
+                <label for="issueType">Issue Type</label>
+                <select id="issueType" name="issueType" required>
+                    <option value="" disabled selected>Select Issue Type</option>
+                    <option value="Technical">App Crashes / Technical Errors</option>
+                    <option value="Account">Login / Account Issues</option>
+                    <option value="Map">Navigation / Map Errors</option>
+                    <option value="Content">Content / Information Errors</option>
+                    <option value="Other">Other Issues</option>
+                </select>
+
+                <label>Priority Level</label>
+                <div class="radio-group">
+                    <div><input type="radio" id="p1" name="priority" value="High"><label for="p1">High</label></div>
+                    <div><input type="radio" id="p2" name="priority" value="Medium" checked><label
+                            for="p2">Medium</label></div>
+                    <div><input type="radio" id="p3" name="priority" value="Low"><label for="p3">Low</label></div>
+                </div>
+
+                <label for="sup-desc">Describe Your Issue</label>
+                <textarea id="sup-desc" name="description" rows="4" placeholder="How can we help?" required></textarea>
+
+                <button type="submit">Submit Support Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="glass-modal">
+        <div class="glass-modal-content">
+            <span class="close-modal" onclick="closeModal('feedbackModal')">&times;</span>
+            <h2>Share Feedback</h2>
+            <form id="feedbackFormAction">
+                <label for="fb-rating">Overall Experience</label>
+                <select id="fb-rating" name="overall" required>
+                    <option value="5">5 ⭐ Excellent</option>
+                    <option value="4">4 ⭐ Good</option>
+                    <option value="3">3 ⭐ Average</option>
+                    <option value="2">2 ⭐ Poor</option>
+                    <option value="1">1 ⭐ Very Bad</option>
+                </select>
+
+                <label>Was it easy to find accommodations?</label>
+                <div class="radio-group">
+                    <div><input type="radio" id="h1" name="hotels" value="Yes" checked><label for="h1">Yes</label></div>
+                    <div><input type="radio" id="h2" name="hotels" value="No"><label for="h2">No</label></div>
+                </div>
+
+                <label>Helpful suggestions?</label>
+                <div class="radio-group">
+                    <div><input type="radio" id="f1" name="food" value="Yes" checked><label for="f1">Yes</label></div>
+                    <div><input type="radio" id="f2" name="food" value="No"><label for="f2">No</label></div>
+                </div>
+
+                <label for="fb-comments">Additional Suggestions</label>
+                <textarea id="fb-comments" name="comments" rows="3" placeholder="Tell us more..."></textarea>
+
+                <button type="submit">Submit Feedback</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 📊 Main Engagement Chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 400);
+    grad.addColorStop(0, 'rgba(46, 196, 255, 0.4)');
+    grad.addColorStop(1, 'rgba(46, 196, 255, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['01', '05', '10', '15', '20', '25', '30'],
+            datasets: [{
+                data: [10, 25, 18, 45, 30, 55, {{ user_count| add: plan_count |default: 15
+            }}],
+        borderColor: '#2ec4ff',
+        backgroundColor: grad,
+        borderWidth: 4,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 0,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#2ec4ff'
+    }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } } }
+        }
+    }
+    });
+
+    // 🎯 Mini Gauge
+    new Chart(document.getElementById('gaugeChart'), {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [98, 2],
+                backgroundColor: ['#2ec4ff', 'rgba(255, 255, 255, 0.05)'],
+                borderWidth: 0,
+                circumference: 220,
+                rotation: 250,
+                borderRadius: 20
+            }]
+        },
+        options: {
+            cutout: '85%',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 🚀 Modal Logic
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Close on outside click
+    window.onclick = function (event) {
+        if (event.target.className === 'glass-modal') {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // Handle Form Submissions (Simulated)
+    document.getElementById('supportFormAction').addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Support request submitted successfully!');
+        closeModal('supportModal');
+    });
+
+    document.getElementById('feedbackFormAction').addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Thank you for your feedback!');
+        closeModal('feedbackModal');
+    });
+</script>
+{% endblock %}

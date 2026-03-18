@@ -1,0 +1,310 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Route Navigation</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body class="bg-theme dashboard">
+  {% include "translation_scripts.html" %}
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="side-logo">
+    <img src="{% static 'images/logo.png' %}">
+  </div>
+  <a href="{% url 'home' %}" class="active"><i class="fa fa-home"></i></a>
+  <a href="{% url 'stay' %}"><i class="fa fa-hotel"></i></a>
+  <a href="#"><i class="fa fa-utensils"></i></a>
+  <a href="#"><i class="fa fa-bus"></i></a>
+  <a href="{% url 'emergency:dashboard' %}"><i class="fa-solid fa-truck-medical"></i></a>
+  <a href="{% url 'account:dashboard' %}"><i class="fa fa-user"></i></a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <!-- TOP BAR -->
+  <div class="topbar topbar-col">
+    <button class="back-btn" onclick="window.history.back()">
+      <i class="fa fa-arrow-left"></i>
+    </button>
+    <h2 style="margin-left: 0;"></h2>
+  </div>
+
+  <div class="route-container">
+    <div class="route-info glass">
+      <h2 id="hotelName" style="color:var(--primary);"></h2>
+      <p id="distance"></p>
+      <p id="time"></p>
+
+      <label>Travel Mode</label>
+      <select id="mode" style="width:100%; border-radius:8px; padding:8px; border:none; margin-top:5px; background:rgba(255,255,255,0.1); color:white; outline:none;">
+        <option value="walk" style="background:#1f2937;">🚶 Walking</option>
+        <option value="bike" style="background:#1f2937;">🏍 Two Wheeler</option>
+        <option value="car" style="background:#1f2937;">🚗 Car</option>
+      </select>
+
+      <div id="stats" style="margin-top:15px; background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+        Speed: <span id="speed" style="font-weight:bold; color:#2ec4ff;">0</span> km/h<br>
+        ETA: <span id="eta" style="font-weight:bold; color:#2ec4ff;">0</span> min<br>
+        Remaining: <span id="remain" style="font-weight:bold; color:#2ec4ff;">0</span> km
+      </div>
+
+      <div class="turn" id="turnArrow" style="font-size:32px; margin:15px 0;">⬆️</div>
+      <div id="nextStreet" style="font-weight:600; font-size:14px; opacity:0.8;">Next street: --</div>
+
+      <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:10px; margin-top:15px; overflow:hidden;">
+        <div id="progressBar" style="height:100%; width:0%; background:linear-gradient(90deg, #2ec4ff, #0072ff); transition:width 0.5s;"></div>
+      </div>
+
+      <div class="nav-buttons" style="margin-top:auto; padding-top:20px; display:flex; gap:10px;">
+        <button onclick="recenter()" class="btn-primary" style="flex:1; background:#4a90e2; box-shadow:0 0 10px #4a90e2;">📍 Recenter</button>
+        <button id="journeyBtn" onclick="toggleJourney()" class="btn-primary" style="flex:1;">▶️ Start Journey</button>
+      </div>
+    </div>
+
+    <div class="route-map glass">
+      <div id="map"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Local Storage parameters (since Dashboard uses JS/localStorage)
+const destLat = parseFloat(localStorage.getItem("destLat"));
+const destLon = parseFloat(localStorage.getItem("destLng"));
+const name = localStorage.getItem("place");
+
+document.getElementById("hotelName").innerText = name;
+
+// Map
+const map = L.map('map').setView([13.0827,80.2707],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+// Destination marker
+const hotelIcon = L.divIcon({
+    className: '',
+    html: `<div style="position:relative;width:40px;height:50px;display:flex;flex-direction:column;align-items:center;">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#2ec4ff,#5a78ff);border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 6px 20px rgba(46,196,255,0.6);border:2px solid rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;">
+            <span style="transform:rotate(45deg);font-size:18px;line-height:1;">✈️</span>
+        </div>
+        <div style="width:6px;height:10px;background:linear-gradient(#5a78ff,transparent);border-radius:0 0 4px 4px;"></div>
+    </div>`,
+    iconSize: [40, 50],
+    iconAnchor: [20, 50],
+    popupAnchor: [0, -50]
+});
+L.marker([destLat,destLon],{icon:hotelIcon}).addTo(map).bindPopup(name);
+
+// User marker
+const userIcon = L.divIcon({
+    className: '',
+    html: `<div style="width:18px;height:18px;background:#2ec4ff;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 6px rgba(46,196,255,0.3),0 0 20px rgba(46,196,255,0.5);"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+});
+let userMarker, totalDistance=0;
+let isJourneyStarted = false;
+
+// Routing
+const routing = L.Routing.control({
+  waypoints: [],
+  show:false,
+  createMarker:()=>null
+}).addTo(map);
+
+routing.on('routesfound', e=>{
+    const route = e.routes[0];
+    totalDistance = route.summary.totalDistance;
+    document.getElementById("distance").innerText = "Distance: "+(totalDistance/1000).toFixed(2)+" km";
+    document.getElementById("time").innerText = "ETA: "+(route.summary.totalTime/60).toFixed(0)+" min";
+});
+
+// Distance
+function getDistance(lat1,lon1,lat2,lon2){
+    const R=6371e3, φ1=lat1*Math.PI/180, φ2=lat2*Math.PI/180;
+    const Δφ=(lat2-lat1)*Math.PI/180, Δλ=(lon2-lon1)*Math.PI/180;
+    const a=Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+    const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+    return R*c;
+}
+
+// Speed
+function getSpeed(){
+    const mode = document.getElementById('mode').value;
+    if(mode=='walk') return 5;
+    if(mode=='bike') return 35;
+    if(mode=='car') return 45;
+}
+
+// Voice
+function speak(text){speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text));}
+
+// Track instruction stages
+let instructionStage = new Map();
+
+function toggleJourney() {
+    if (!isJourneyStarted) {
+        // Start Journey
+        isJourneyStarted = true;
+        
+        const btn = document.getElementById("journeyBtn");
+        btn.innerHTML = "▶️ Start Journey"; // Initial text if needed, but it should change on start
+        
+        // Get initial location and start
+        navigator.geolocation.getCurrentPosition(pos=>{
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+
+            if(!userMarker) userMarker = L.marker([lat,lon],{icon:userIcon}).addTo(map);
+            else userMarker.setLatLng([lat,lon]);
+            map.setView([lat,lon],18);
+
+            routing.setWaypoints([L.latLng(lat,lon), L.latLng(destLat,destLon)]);
+            
+            // Wait for route calculation to start announcing
+            routing.on('routesfound', function(e){
+                const route = e.routes[0];
+                if(route.instructions && route.instructions.length>0 && isJourneyStarted){
+                    const firstInstr = route.instructions[0];
+                    instructionStage.set(firstInstr.text,'advance');
+                    document.getElementById("nextStreet").innerText = "Next street: "+firstInstr.text;
+                    speak("Navigation started. First turn on "+firstInstr.text);
+                }
+            });
+
+            startLiveTracking();
+            
+            btn.innerHTML = "On Route...";
+            btn.style.background = "#ffa500"; // Orange
+            btn.style.boxShadow = "0 0 10px #ffa500";
+            btn.disabled = true;
+            
+        }, ()=>alert("Location permission required"), {enableHighAccuracy:true});
+    }
+}
+
+function recenter() {
+    if (isJourneyStarted && map && userMarker) {
+        map.setView(userMarker.getLatLng(), 18);
+    } else {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            if(!userMarker) {
+                userMarker = L.marker([lat,lon],{icon:userIcon}).addTo(map);
+            } else {
+                userMarker.setLatLng([lat,lon]);
+            }
+            map.setView([lat,lon], 15);
+        }, ()=>alert("Location permission required"), {enableHighAccuracy:true});
+    }
+}
+
+function endJourney() {
+    confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+    });
+
+    const popup = document.createElement("div");
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.background = "#1F2937";
+    popup.style.color = "white";
+    popup.style.padding = "20px 40px";
+    popup.style.borderRadius = "15px";
+    popup.style.fontSize = "24px";
+    popup.style.zIndex = "10001";
+    popup.style.boxShadow = "0 0 30px rgba(0,0,0,0.5)";
+    popup.innerHTML = "🎉 Journey Completed! 🎉<br><small style='font-size:14px; opacity:0.8;'>Redirecting...</small>";
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        window.history.back(); // Or redirect to home/nearby
+    }, 3000);
+}
+
+function startLiveTracking(){
+    navigator.geolocation.watchPosition(pos=>{
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        if(userMarker) userMarker.setLatLng([lat,lon]);
+        if (isJourneyStarted) map.setView([lat,lon],18);
+
+        const remain = getDistance(lat,lon,destLat,destLon)/1000;
+        document.getElementById("remain").innerText = remain.toFixed(2);
+        const speed = getSpeed();
+        document.getElementById("speed").innerText = speed;
+        const eta = (remain/speed)*60;
+        document.getElementById("eta").innerText = Math.round(eta);
+
+        const progress = ((totalDistance-remain*1000)/totalDistance)*100;
+        if(progress>0) document.getElementById("progressBar").style.width = progress+"%";
+
+        // Arrival
+        if(remain<0.05 && isJourneyStarted && instructionStage.get("arrived")!=="done"){
+            speak("You have arrived at your destination");
+            instructionStage.set("arrived","done");
+            
+            const btn = document.getElementById("journeyBtn");
+            if (btn) {
+                btn.innerHTML = "🏁 End Journey";
+                btn.style.background = "#22c55e"; // Success green
+                btn.style.boxShadow = "0 0 10px #22c55e";
+                btn.disabled = false;
+                btn.onclick = endJourney;
+            }
+        }
+
+        // Turn arrow
+        document.getElementById("turnArrow").innerText = remain>1?"⬆️":remain>0.5?"➡️":"⬅️";
+
+        // Live instructions
+        if(routing._routes && routing._routes[0] && isJourneyStarted){
+            const instructions = routing._routes[0].instructions;
+            if(instructions && instructions.length>0){
+                for(let instr of instructions){
+                    const dist = getDistance(lat,lon,instr.latLng.lat,instr.latLng.lng);
+                    const stage = instructionStage.get(instr.text)||"none";
+
+                    // Advance alert ~150m
+                    if(stage==="none" && dist<150){
+                        speak("Upcoming turn on "+instr.text+" in 150 meters");
+                        instructionStage.set(instr.text,"advance");
+                        document.getElementById("nextStreet").innerText = "Next street: "+instr.text;
+                    }
+                    // Turn now ~50m
+                    else if(stage==="advance" && dist<50){
+                        speak("Turn now on "+instr.text);
+                        instructionStage.set(instr.text,"done");
+                        document.getElementById("nextStreet").innerText = "Next street: "+instr.text;
+                    }
+                }
+            }
+        }
+
+    }, ()=>alert("Location permission required"), {enableHighAccuracy:true});
+}
+</script>
+
+<script src="{% static 'js/app.js' %}"></script>
+{% include "chatbot/chatbot_widget.html" %}
+</body>
+</html>
