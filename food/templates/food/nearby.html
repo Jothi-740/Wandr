@@ -34,10 +34,19 @@
 
     <!-- TOP BAR -->
     <div class="topbar topbar-col">
-        <button class="back-btn" onclick="window.location.href='{% url 'home' %}';">
+        <button class="back-btn" onclick="goHome()">
             <i class="fa fa-arrow-left"></i>
         </button>
-        <h2 style="margin-left: 0;">Nearby Restaurants</h2>
+        
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 10px;">
+            <h2 style="margin: 0;">Nearby Restaurants</h2>
+            <div class="search-container">
+              <input type="number" id="radiusInput" class="search-input" placeholder="3km" onkeypress="checkEnter(event)">
+              <button onclick="toggleSearch()" class="search-icon-btn">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+        </div>
     </div>
 
     <div id="loading-state"

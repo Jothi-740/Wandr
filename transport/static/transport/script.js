@@ -2,6 +2,29 @@ let userLat, userLng;
 let map;
 let markers = [];
 let routingControl = null;
+let currentCategory = null;
+
+function toggleSearch() {
+  const input = document.getElementById("radiusInput");
+  if (!input) return;
+
+  if (input.classList.contains("active")) {
+    if (currentCategory === 'bus') getBus();
+    else if (currentCategory === 'train') getTrain();
+    else alert("Please select a category first!");
+  } else {
+    input.classList.add("active");
+    input.focus();
+  }
+}
+
+function checkEnter(event) {
+  if (event.key === "Enter") {
+    if (currentCategory === 'bus') getBus();
+    else if (currentCategory === 'train') getTrain();
+    else alert("Please select a category first!");
+  }
+}
 
 /* Get user location */
 function getLocation(callback) {
@@ -86,38 +109,46 @@ function showTransportOptions() {
 
 /* BUS STOPS */
 function getBus() {
-
+  currentCategory = 'bus';
   document.getElementById("status").innerText = "Finding bus stops...";
 
+  const radiusInput = document.getElementById("radiusInput");
+  let radiusMeters = 3000; // Default 3km
+  if (radiusInput && radiusInput.value) {
+    const km = parseFloat(radiusInput.value);
+    if (!isNaN(km) && km > 0) {
+      radiusMeters = km * 1000;
+    }
+  }
+
   getLocation(function () {
-
     initMap();
-
     const query =
-      `[out:json];node["highway"="bus_stop"](around:3000,${userLat},${userLng});out;`;
-
+      `[out:json];node["highway"="bus_stop"](around:${radiusMeters},${userLat},${userLng});out;`;
     fetchOverpassData(query, "Bus Stop");
-
   });
-
 }
 
 /* RAILWAY STATIONS */
 function getTrain() {
-
+  currentCategory = 'train';
   document.getElementById("status").innerText = "Finding railway stations...";
 
+  const radiusInput = document.getElementById("radiusInput");
+  let radiusMeters = 3000; // Default 3km
+  if (radiusInput && radiusInput.value) {
+    const km = parseFloat(radiusInput.value);
+    if (!isNaN(km) && km > 0) {
+      radiusMeters = km * 1000;
+    }
+  }
+
   getLocation(function () {
-
     initMap();
-
     const query =
-      `[out:json];node["railway"="station"](around:3000,${userLat},${userLng});out;`;
-
+      `[out:json];node["railway"="station"](around:${radiusMeters},${userLat},${userLng});out;`;
     fetchOverpassData(query, "Railway Station");
-
   });
-
 }
 
 /* Display results */

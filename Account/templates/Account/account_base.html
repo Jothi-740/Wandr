@@ -5,8 +5,8 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}Account - Wandr{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'Account/css/account.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=17">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
 
@@ -88,9 +88,9 @@
         <li><a href="{% url 'account:settings' %}"
             class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}">Settings</a></li>
       </ul>
-      <form action="/login/" class="logout-form">
-        <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-      </form>
+      <div class="logout-form">
+        <button type="button" onclick="logout()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
     </nav>
     {% endblock %}
 
@@ -184,6 +184,32 @@
     }
 
   </script>
+
+  <script src="{% static 'js/app.js' %}?v=11"></script>
+
+  <!-- EXIT FEEDBACK POPUP -->
+  <div id="exitPopup" class="modal-overlay" style="display: none; position: fixed; inset: 0; z-index: 20000; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); justify-content: center; align-items: center;">
+    <div class="glass-modal-card" style="text-align: center; max-height: 85vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; background: rgba(20, 30, 60, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 40px; width: 90%; max-width: 500px; color: #fff;">
+      <button class="close-modal-btn" onclick="closeExitPopup()" style="position: absolute; right: 20px; top: 15px; background: none; border: none; font-size: 24px; color: rgba(255,255,255,0.6); cursor: pointer;">&times;</button>
+      <h2 style="font-size: 28px; margin-bottom: 10px; background: linear-gradient(135deg, #fff, #2ec4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Wait! Before you go... 🌍</h2>
+      <p style="color: rgba(255,255,255,0.8); margin-bottom: 25px;">We'd love to hear about your experience with Wandr.</p>
+
+      <div class="feedback-stars" style="margin-bottom: 25px; font-size: 28px; cursor: pointer; display: flex; justify-content: center; gap: 10px;">
+        <i onclick="rate(1)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(2)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(3)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(4)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(5)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+      </div>
+
+      <textarea id="exitFeedbackMsg" placeholder="Anything we can improve?" style="width: 100%; padding: 15px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px; min-height: 100px; font-family: inherit; font-size: 14px; outline: none;"></textarea>
+
+      <div class="popup-btns" style="display: flex; gap: 15px; justify-content: center;">
+        <button onclick="submitExitFeedback()" style="flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #2ec4ff, #5a78ff); color: #fff; font-weight: bold; border: none; cursor: pointer;">Submit & Logout</button>
+        <button onclick="logoutNow()" style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;">Just Logout</button>
+      </div>
+    </div>
+  </div>
 
   {% include "chatbot/chatbot_widget.html" %}
 </body>

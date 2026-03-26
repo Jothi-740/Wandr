@@ -1,18 +1,33 @@
 const GEOAPIFY_KEY = "5394f0c353f24e0c9a729a76fd125c95";
 const UNSPLASH_KEY = "NB21_l97rNLAQbqE8wv_nUqK1xvQYhW7Dlpk0dyMn6k";
 
-function getLocation(){
+function toggleSearch() {
+  const input = document.getElementById("radiusInput");
+  if (!input) return;
 
-if(navigator.geolocation){
-
-navigator.geolocation.getCurrentPosition(fetchHotels);
-
-}else{
-
-alert("Geolocation not supported");
-
+  if (input.classList.contains("active")) {
+    getLocation();
+  } else {
+    input.classList.add("active");
+    input.focus();
+  }
 }
 
+function checkEnter(event) {
+  if (event.key === "Enter") {
+    getLocation();
+  }
+}
+
+function getLocation(){
+  const container = document.getElementById("hotelContainer");
+  if (container) container.innerHTML = "Getting your location...";
+
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(fetchHotels);
+  }else{
+    alert("Geolocation not supported");
+  }
 }
 
 
@@ -21,8 +36,17 @@ async function fetchHotels(position){
 const userLat = position.coords.latitude;
 const userLon = position.coords.longitude;
 
+const radiusInput = document.getElementById("radiusInput");
+let radiusMeters = 7000; // Default 7km
+if (radiusInput && radiusInput.value) {
+  const km = parseFloat(radiusInput.value);
+  if (!isNaN(km) && km > 0) {
+    radiusMeters = km * 1000;
+  }
+}
+
 const url =
-`https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${userLon},${userLat},7000&limit=20&apiKey=${GEOAPIFY_KEY}`;
+`https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${userLon},${userLat},${radiusMeters}&limit=20&apiKey=${GEOAPIFY_KEY}`;
 
 try{
 

@@ -3,26 +3,35 @@ let map;
 let markers = [];
 let routingControl = null;
 
+function toggleSearch() {
+  const input = document.getElementById("radiusInput");
+  if (!input) return;
+
+  if (input.classList.contains("active")) {
+    getFood();
+  } else {
+    input.classList.add("active");
+    input.focus();
+  }
+}
+
+function checkEnter(event) {
+  if (event.key === "Enter") {
+    getFood();
+  }
+}
+
 /* Get user location */
 function getLocation(callback) {
-
   if (navigator.geolocation) {
-
     navigator.geolocation.getCurrentPosition(function (position) {
-
       userLat = position.coords.latitude;
       userLng = position.coords.longitude;
-
       callback();
-
     }, function () {
-
       alert("Please allow location access.");
-
     });
-
   }
-
 }
 
 /* Initialize map */
@@ -79,11 +88,22 @@ async function fetchOverpassData(query, label) {
 
 /* FOOD */
 function getFood() {
-  document.getElementById("status").innerText = "Finding restaurants...";
+  const statusElem = document.getElementById("status");
+  if (statusElem) statusElem.innerText = "Finding restaurants...";
+  
+  const radiusInput = document.getElementById("radiusInput");
+  let radiusMeters = 3000; // Default 3km
+  if (radiusInput && radiusInput.value) {
+    const km = parseFloat(radiusInput.value);
+    if (!isNaN(km) && km > 0) {
+      radiusMeters = km * 1000;
+    }
+  }
+
   getLocation(function () {
     initMap();
     const query =
-      `[out:json];node["amenity"="restaurant"](around:3000,${userLat},${userLng});out;`;
+      `[out:json];node["amenity"="restaurant"](around:${radiusMeters},${userLat},${userLng});out;`;
     fetchOverpassData(query, "Restaurant");
   });
 }

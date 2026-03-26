@@ -276,12 +276,18 @@ input[type="number"] {
 /* TOPBAR */
 
 .topbar {
-
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 15px 20px;
+  margin: -20px -20px 20px -20px;
+  background: rgba(15, 28, 46, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .topbar-col {
@@ -949,6 +955,27 @@ input[type="number"] {
     background:#2f4de0;
 }
 
+/* FOOTER TEXT LINKS */
+.footer-link {
+    cursor: pointer;
+    color: inherit;
+    transition: color 0.3s;
+}
+
+.footer-link:hover {
+    color: #2ec4ff;
+}
+
+.footer-icon {
+    color: inherit;
+    transition: transform 0.3s, color 0.3s ease;
+}
+
+.footer-icon:hover {
+    color: #2ec4ff;
+    transform: scale(1.15);
+}
+
 
 /* SEPARATOR */
 .separator {
@@ -972,4 +999,67 @@ input[type="number"] {
 .separator span {
   padding: 0 15px;
   font-weight: 600;
+}
+
+/* LIGHT THEME OVERRIDES */
+body.theme-light.bg-theme {
+    background: #f4f7f6 !important;
+    color: #2c3e50 !important;
+}
+
+body.theme-light .topbar {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+body.theme-light .glass {
+    background: #ffffff !important;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    color: #2c3e50 !important;
+}
+
+body.theme-light .sidebar {
+    background: #ffffff !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
+    border-right: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+body.theme-light .sidebar a {
+    color: #7f8c8d !important;
+}
+
+body.theme-light .sidebar a.active, 
+body.theme-light .sidebar a:hover {
+    color: #0072ff !important;
+    background: rgba(0, 114, 255, 0.08);
+    border-radius: 12px;
+}
+
+body.theme-light .topbar h2,
+body.theme-light .nearby h3 {
+    color: #2c3e50 !important;
+}
+
+body.theme-light input, 
+body.theme-light select, 
+body.theme-light textarea {
+    background: #f0f3f6 !important;
+    color: #2c3e50 !important;
+    border: 1px solid #e0e6ed !important;
+}
+
+body.theme-light .fc-back {
+    background: #ffffff !important;
+    color: #2c3e50 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}
+
+body.theme-light .logout-btn,
+body.theme-light .theme-toggle-btn {
+    color: #2c3e50 !important;
+}
+
+body.theme-light .slides {
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important;
 }

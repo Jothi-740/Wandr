@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <title>Home - Wandr</title>
 
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=15">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=17">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
@@ -187,28 +187,33 @@
 
       <h2>Welcome to Wandr 🌍</h2>
 
-      <button onclick="logout()" class="logout-btn">
-        <i class="fa fa-sign-out"></i>
-      </button>
+      <div style="display: flex; align-items: center; gap: 35px;">
+        <button onclick="toggleTheme()" class="theme-toggle-btn" style="background: none; border: none; color: inherit; font-size: 24px; cursor: pointer; transition: transform 0.2s;">
+          <i id="theme-icon" class="fa fa-sun"></i>
+        </button>
+        <button onclick="logout()" class="logout-btn" style="font-size: 22px;">
+          <i class="fa fa-sign-out"></i>
+        </button>
+      </div>
 
     </div>
 
 
     <!-- SLIDER -->
+    <div class="slider" style="position: relative; border-radius: 24px; overflow: hidden; padding: 0; min-height: 400px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 40px; border: none; background: transparent;">
 
-    <div class="slider glass">
-
-      <h3>Explore Top Places</h3>
-
-      <div class="slider-viewport">
-        <div class="slides">
-
-          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900" class="slide active">
-          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900" class="slide">
-          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=900" class="slide">
-          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900" class="slide">
-
+      <div class="slider-viewport" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+        <div class="slides" style="width: 100%; height: 100%;">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900" class="slide active" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900" class="slide" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=900" class="slide" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900" class="slide" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
         </div>
+      </div>
+
+      <div style="position: relative; z-index: 2; text-align: left; color: white; padding: 30px 60px; width: 100%; box-sizing: border-box;">
+        <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 15px; text-shadow: 0 2px 15px rgba(0,0,0,0.6);">Welcome Back, Explorer!</h1>
+        <p style="font-size: 18px; font-weight: 500; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.6);">Your next adventure is waiting — step out and explore something unforgettable today.</p>
       </div>
 
     </div>
@@ -411,22 +416,30 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="footer glass">
-      <div class="footer-content">
-        <button onclick="openSupport()" class="footer-btn">
-          <i class="fa fa-life-ring"></i> Support
-        </button>
-        <button onclick="openFeedback()" class="footer-btn">
-          <i class="fa fa-comment-dots"></i> Send us Feedback
-        </button>
+    <footer style="margin: 40px -20px -20px -20px; padding: 20px; background: #0f172a; display: flex; flex-direction: column; gap: 8px; text-align: center; color: rgba(255,255,255,0.8);">
+      
+      <!-- Line 1: Links & Icons -->
+      <div style="display: flex; justify-content: center; align-items: center; gap: 20px; font-size: 13px; font-weight: 500;">
+        <span onclick="openSupport()" class="footer-link">Support Desk</span>
+        <span style="opacity: 0.3;">|</span>
+        <span onclick="openFeedback()" class="footer-link">Provide Feedback</span>
+        <span style="opacity: 0.3;">|</span>
+        <a href="#" class="footer-icon" style="font-size: 16px; margin-left: -5px;"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="footer-icon" style="font-size: 16px;"><i class="fa-regular fa-envelope"></i></a>
       </div>
+
+      <!-- Line 2: Copyright -->
+      <div style="font-size: 11px; opacity: 0.5; letter-spacing: 0.5px;">
+        &copy; 2026 WANDR INC. ALL RIGHTS RESERVED.
+      </div>
+
     </footer>
   </div>
 
   <!-- EXIT FEEDBACK POPUP (TOAST STYLE) -->
   <!-- Support Modal -->
   <div id="supportModal" class="modal-overlay">
-    <div class="glass-modal-card">
+    <div class="glass-modal-card" style="max-height: 85vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
       <button class="close-modal-btn" onclick="closeModal('supportModal')">&times;</button>
       <h2>Wandr Support</h2>
       <form class="glass-form" id="supportForm">
@@ -466,7 +479,7 @@
 
   <!-- Feedback Modal -->
   <div id="feedbackModal" class="modal-overlay">
-    <div class="glass-modal-card" style="max-height: 88vh; overflow-y: auto;">
+    <div class="glass-modal-card" style="max-height: 85vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
       <button class="close-modal-btn" onclick="closeModal('feedbackModal')">&times;</button>
       <h2>Wandr Feedback</h2>
       <form class="glass-form" id="feedbackForm">
@@ -534,32 +547,60 @@
     </div>
   </div>
 
-  <div id="exitPopup" class="modal-overlay toast">
-    <div class="modal-content glass">
-      <button class="close-popup" onclick="closeExitPopup()">&times;</button>
+  <div id="exitPopup" class="modal-overlay">
+    <div class="glass-modal-card" style="text-align: center; max-height: 85vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+      <button class="close-modal-btn" onclick="closeExitPopup()">&times;</button>
       <h2>Wait! Before you go... 🌍</h2>
-      <p>We'd love to hear about your experience with Wandr.</p>
+      <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">We'd love to hear about your experience with Wandr.</p>
 
-      <div class="feedback-stars">
-        <span onclick="rate(1)" class="star">⭐</span>
-        <span onclick="rate(2)" class="star">⭐</span>
-        <span onclick="rate(3)" class="star">⭐</span>
-        <span onclick="rate(4)" class="star">⭐</span>
-        <span onclick="rate(5)" class="star">⭐</span>
+      <div class="feedback-stars" style="margin-bottom: 25px; font-size: 28px; cursor: pointer; display: flex; justify-content: center; gap: 10px;">
+        <i onclick="rate(1)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(2)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(3)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(4)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
+        <i onclick="rate(5)" class="fa-regular fa-star star" style="transition: 0.2s; color: rgba(255,255,255,0.4);"></i>
       </div>
 
-      <textarea id="exitFeedbackMsg" placeholder="Anything we can improve?"></textarea>
+      <textarea id="exitFeedbackMsg" placeholder="Anything we can improve?" style="width: 100%; padding: 15px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px; min-height: 100px; font-family: inherit; font-size: 14px; outline: none;"></textarea>
 
-      <div class="popup-btns">
-        <button onclick="submitExitFeedback()" class="footer-btn">Submit & Logout</button>
-        <button onclick="logoutNow()" class="btn-secondary">Just Logout</button>
+      <div class="popup-btns" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <button onclick="submitExitFeedback()" style="flex: 1; min-width: 140px; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #2ec4ff, #5a78ff); color: #fff; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s;">Submit & Logout</button>
+        <button onclick="logoutNow()" style="flex: 1; min-width: 140px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.2s;">Just Logout</button>
       </div>
     </div>
   </div>
 
   <!-- Leaflet JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-  <script src="{% static 'js/app.js' %}?v=10"></script>
+  <script src="{% static 'js/app.js' %}?v=11"></script>
+
+  <script>
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('theme-light');
+      const icon = document.getElementById('theme-icon');
+      if (isLight) {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+          localStorage.setItem('wandr_theme', 'light');
+      } else {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+          localStorage.setItem('wandr_theme', 'dark');
+      }
+    }
+  
+    // Restore theme on load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('wandr_theme') === 'light') {
+          document.body.classList.add('theme-light');
+          const icon = document.getElementById('theme-icon');
+          if(icon) {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+          }
+      }
+    });
+  </script>
 
   {% include "chatbot/chatbot_widget.html" %}
 

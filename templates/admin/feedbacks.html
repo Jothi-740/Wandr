@@ -4,11 +4,21 @@
 {% block content %}
 <div id="content-main">
     <div style="background: rgba(46, 196, 255, 0.05); border: 1px solid rgba(46, 196, 255, 0.2); border-radius: 20px; padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-        <h2 style="margin: 0; color: #fff;">User Feedbacks & Suggestions</h2>
+        <h2 style="margin: 0; color: #fff;">Feedbacks & Support</h2>
+        <div style="display: flex; gap: 10px;">
+            <button id="btn-feedback" onclick="switchTab('feedback')" style="background: rgba(46, 196, 255, 0.2); color: #2ec4ff; border: 1px solid #2ec4ff; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(46, 196, 255, 0.2);">
+                <i class="fa fa-comment-dots"></i> Feedback
+            </button>
+            <button id="btn-support" onclick="switchTab('support')" style="background: rgba(255, 255, 255, 0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s;">
+                <i class="fa fa-headset"></i> Support
+            </button>
+        </div>
     </div>
 
-    <!-- Layout Grid -->
-    <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+    <!-- FEEDBACK SECTION -->
+    <div id="feedback-section" style="display: block;">
+        <!-- Layout Grid -->
+        <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
         
         <!-- Feedback list -->
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
@@ -25,6 +35,184 @@
             <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">I'm really liking the dark mode glass implementation! Much easier on the eyes.</p>
         </div>
 
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>Michael Chen</strong> <span style="color: rgba(255,255,255,0.4); font-size: 13px;">March 10, 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">Please add more filter options when searching for nearby food spots. Otherwise, very clean app.</p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>Emma Watson</strong> <span style="color: rgba(255,255,255,0.4); font-size: 13px;">March 08, 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">Found the most amazing small coffee shop using Wandr. Highly recommend the transport alerts too!</p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>David Rossi</strong> <span style="color: rgba(255,255,255,0.4); font-size: 13px;">March 05, 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">App crashed when switching from dark mode to light mode on my phone, could use a stability patch.</p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>Priya Sharma</strong> <span style="color: rgba(255,255,255,0.4); font-size: 13px;">March 01, 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">If we can add a 'share itinerary' link button soon that would be awesome!</p>
+        </div>
+
+        </div>
+    </div>
+    
+    <!-- SUPPORT SECTION -->
+    <div id="support-section" style="display: none;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            
+            <!-- Pending -->
+            <div>
+                <h3 style="color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;"><i class="fa fa-clock" style="color: #ff5252;"></i> Pending Tasks</h3>
+                <div id="pending-list" style="display: flex; flex-direction: column; gap: 15px;">
+                    <!-- Ticket 1 -->
+                    <div class="support-ticket" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #ff5252; border-radius: 16px; padding: 20px; transition: 0.5s;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <strong class="tkt-title" style="color: #fff; font-size: 16px;">Ticket #8492</strong>
+                                <span class="tkt-badge" style="background: rgba(255, 82, 82, 0.1); color: #ff5252; padding: 3px 8px; border-radius: 8px; font-size: 11px; margin-left: 10px;">Critical</span>
+                            </div>
+                            <span class="tkt-email" style="color: rgba(255,255,255,0.4); font-size: 12px;">jim.h@example.com</span>
+                        </div>
+                        <p class="tkt-desc" style="color: rgba(255,255,255,0.7); margin: 0 0 15px 0;">Cannot log in. Reset password email not arriving to my inbox or spam.</p>
+                        <button onclick="resolveTicket(this)" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: bold; width: 100%; transition: 0.3s;">
+                            <i class="fa fa-check"></i> Mark as Resolved
+                        </button>
+                    </div>
+
+                    <!-- Ticket 2 -->
+                    <div class="support-ticket" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #ff5252; border-radius: 16px; padding: 20px; transition: 0.5s;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <strong class="tkt-title" style="color: #fff; font-size: 16px;">Ticket #8491</strong>
+                                <span class="tkt-badge" style="background: rgba(255, 82, 82, 0.1); color: #ff5252; padding: 3px 8px; border-radius: 8px; font-size: 11px; margin-left: 10px;">High</span>
+                            </div>
+                            <span class="tkt-email" style="color: rgba(255,255,255,0.4); font-size: 12px;">lisa88@example.com</span>
+                        </div>
+                        <p class="tkt-desc" style="color: rgba(255,255,255,0.7); margin: 0 0 15px 0;">Payment failed but card was charged for premium upgrade.</p>
+                        <button onclick="resolveTicket(this)" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: bold; width: 100%; transition: 0.3s;">
+                            <i class="fa fa-check"></i> Mark as Resolved
+                        </button>
+                    </div>
+
+                    <!-- Ticket 3 -->
+                    <div class="support-ticket" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #f9ca24; border-radius: 16px; padding: 20px; transition: 0.5s;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <strong class="tkt-title" style="color: #fff; font-size: 16px;">Ticket #8488</strong>
+                                <span class="tkt-badge" style="background: rgba(249, 202, 36, 0.1); color: #f9ca24; padding: 3px 8px; border-radius: 8px; font-size: 11px; margin-left: 10px;">Medium</span>
+                            </div>
+                            <span class="tkt-email" style="color: rgba(255,255,255,0.4); font-size: 12px;">dev_ron@example.com</span>
+                        </div>
+                        <p class="tkt-desc" style="color: rgba(255,255,255,0.7); margin: 0 0 15px 0;">Map API quota seems to have exceeded on my account dashboard when plotting 50 places.</p>
+                        <button onclick="resolveTicket(this)" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: bold; width: 100%; transition: 0.3s;">
+                            <i class="fa fa-check"></i> Mark as Resolved
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resolved -->
+            <div>
+                <h3 style="color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;"><i class="fa fa-check-circle" style="color: #00ff88;"></i> Resolved Tasks</h3>
+                <div id="resolved-list" style="display: flex; flex-direction: column; gap: 15px;">
+                    <!-- Ticket 4 -->
+                    <div class="support-ticket resolved-ticket" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #00ff88; border-radius: 16px; padding: 20px; opacity: 0.6;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <strong class="tkt-title" style="color: rgba(255,255,255,0.7); font-size: 16px;">Ticket #8485</strong>
+                            </div>
+                            <span class="tkt-email" style="color: rgba(255,255,255,0.4); font-size: 12px;">ana.b@example.com</span>
+                        </div>
+                        <p class="tkt-desc" style="color: rgba(255,255,255,0.5); margin: 0; text-decoration: line-through;">How do I change my default language preference?</p>
+                    </div>
+
+                    <!-- Ticket 5 -->
+                    <div class="support-ticket resolved-ticket" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #00ff88; border-radius: 16px; padding: 20px; opacity: 0.6;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <strong class="tkt-title" style="color: rgba(255,255,255,0.7); font-size: 16px;">Ticket #8480</strong>
+                            </div>
+                            <span class="tkt-email" style="color: rgba(255,255,255,0.4); font-size: 12px;">user102@example.com</span>
+                        </div>
+                        <p class="tkt-desc" style="color: rgba(255,255,255,0.5); margin: 0; text-decoration: line-through;">My profile picture is not updating when I click save.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
+
+<script>
+    function switchTab(tab) {
+        document.getElementById('feedback-section').style.display = tab === 'feedback' ? 'block' : 'none';
+        document.getElementById('support-section').style.display = tab === 'support' ? 'block' : 'none';
+        
+        const btnF = document.getElementById('btn-feedback');
+        const btnS = document.getElementById('btn-support');
+        
+        if (tab === 'feedback') {
+            btnF.style.background = 'rgba(46, 196, 255, 0.2)';
+            btnF.style.color = '#2ec4ff';
+            btnF.style.border = '1px solid #2ec4ff';
+            btnF.style.boxShadow = '0 4px 15px rgba(46, 196, 255, 0.2)';
+            
+            btnS.style.background = 'rgba(255, 255, 255, 0.05)';
+            btnS.style.color = 'rgba(255,255,255,0.6)';
+            btnS.style.border = '1px solid rgba(255,255,255,0.1)';
+            btnS.style.boxShadow = 'none';
+        } else {
+            btnS.style.background = 'rgba(46, 196, 255, 0.2)';
+            btnS.style.color = '#2ec4ff';
+            btnS.style.border = '1px solid #2ec4ff';
+            btnS.style.boxShadow = '0 4px 15px rgba(46, 196, 255, 0.2)';
+            
+            btnF.style.background = 'rgba(255, 255, 255, 0.05)';
+            btnF.style.color = 'rgba(255,255,255,0.6)';
+            btnF.style.border = '1px solid rgba(255,255,255,0.1)';
+            btnF.style.boxShadow = 'none';
+        }
+    }
+
+    function resolveTicket(btn) {
+        const ticket = btn.closest('.support-ticket');
+        
+        ticket.style.transform = "scale(0.95)";
+        
+        setTimeout(() => {
+            // Visual style updates
+            ticket.style.opacity = '0.6';
+            ticket.style.borderLeft = '3px solid #00ff88';
+            ticket.style.background = 'rgba(255,255,255,0.02)';
+            ticket.style.transform = "scale(1)";
+            
+            // Strikethrough text
+            const p = ticket.querySelector('.tkt-desc');
+            const title = ticket.querySelector('.tkt-title');
+            if (p) p.style.textDecoration = 'line-through';
+            if (p) p.style.color = 'rgba(255,255,255,0.5)';
+            if (title) title.style.color = 'rgba(255,255,255,0.7)';
+            
+            // Strip badge
+            const badge = ticket.querySelector('.tkt-badge');
+            if (badge) badge.remove();
+
+            // Remove button
+            btn.remove();
+            
+            // Move to resolved list
+            document.getElementById('resolved-list').prepend(ticket);
+        }, 300);
+    }
+</script>
 {% endblock %}

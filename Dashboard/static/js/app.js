@@ -5,6 +5,10 @@ function goLogin() {
   window.location.href = "/login/";
 }
 
+function goHome() {
+  window.location.href = "/home/";
+}
+
 function goBack() {
   window.history.back();
 }
@@ -201,10 +205,17 @@ document.addEventListener("DOMContentLoaded", () => {
 let userRating = 0;
 function rate(n) {
   userRating = n;
-  const stars = document.querySelectorAll(".star");
+  const stars = document.querySelectorAll(".feedback-stars .star");
   stars.forEach((s, i) => {
-    if (i < n) s.classList.add("active");
-    else s.classList.remove("active");
+    if (i < n) {
+        s.classList.remove('fa-regular');
+        s.classList.add('fa-solid');
+        s.style.color = '#ffcc00';
+    } else {
+        s.classList.remove('fa-solid');
+        s.classList.add('fa-regular');
+        s.style.color = 'rgba(255,255,255,0.4)';
+    }
   });
 }
 
@@ -215,12 +226,7 @@ function submitExitFeedback() {
   logoutNow();
 }
 
-// Exit Intent Logic
-document.addEventListener("mouseleave", (e) => {
-  if (e.clientY < 0) {
-    document.getElementById("exitPopup").classList.add("active");
-  }
-});
+// Removed exit handler so it only explicitly triggers when user hits 'Logout'
 
 
 // Route Page
@@ -268,7 +274,6 @@ window.onload = function () {
 
   }
 
-
   // DASHBOARD MAP
 
   if (document.getElementById("map") && !document.getElementById("placeName")) {
@@ -289,25 +294,7 @@ window.onload = function () {
   startSlider();
 }
 
-// FEEDBACK POPUP REFINDED LOGIC
-document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.pathname.includes("/home/")) {
-    const usageFlag = localStorage.getItem("visitedFeature");
-    if (usageFlag === "true") {
-      setTimeout(() => {
-        const popup = document.getElementById("exitPopup");
-        if (popup) {
-          popup.classList.add("active");
-          const title = popup.querySelector("h2");
-          if (title) title.innerText = "Welcome Back! 🌍";
-          const subtitle = popup.querySelector("p");
-          if (subtitle) subtitle.innerText = "How was your experience using Wandr just now?";
-          localStorage.removeItem("visitedFeature");
-        }
-      }, 1500); 
-    }
-  }
-});
+// Removed auto-popup logic to prioritize explicit logout button trigger only.
 
 
 // NEARBY MODULE

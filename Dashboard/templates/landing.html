@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <title>Landing - Wandr</title>
 
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=15">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=17">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
@@ -139,10 +139,10 @@
         <i class="fa fa-lock"></i>
       </div>
       <h3 id="authModalTitle">Unlock the Adventure</h3>
-      <p id="authModalText">Please login to access all planning features and personalized journeys.</p>
+      <p id="authModalText">To explore our premium features and personalized journeys, please sign in to your account.</p>
       <div class="auth-modal-btns">
         <button class="btn-cancel-now" onclick="closeAuthModal()">Cancel</button>
-        <button class="btn-login-now" onclick="goToLogin()">Login Now</button>
+        <button class="btn-login-now" onclick="goToLogin()">Sign In</button>
       </div>
     </div>
   </div>
@@ -155,17 +155,17 @@
       <img src="{% static 'images/logo.png' %}">
     </div>
 
-    <a href="#" onclick="goToLogin(); return false;" class="active"><i class="fa fa-home"></i></a>
+    <a href="#" onclick="showAuthModal(); return false;" class="active"><i class="fa fa-home"></i></a>
 
-    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-hotel"></i></a>
+    <a href="#" onclick="showAuthModal(); return false;"><i class="fa fa-hotel"></i></a>
 
-    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-utensils"></i></a>
+    <a href="#" onclick="showAuthModal(); return false;"><i class="fa fa-utensils"></i></a>
 
-    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-bus"></i></a>
+    <a href="#" onclick="showAuthModal(); return false;"><i class="fa fa-bus"></i></a>
 
-    <a href="#" onclick="goToLogin(); return false;"><i class="fa-solid fa-truck-medical"></i></a>
+    <a href="#" onclick="showAuthModal(); return false;"><i class="fa-solid fa-truck-medical"></i></a>
 
-    <a href="#" onclick="goToLogin(); return false;"><i class="fa fa-user"></i></a> 
+    <a href="#" onclick="showAuthModal(); return false;"><i class="fa fa-user"></i></a> 
 
   </div>
 
@@ -180,9 +180,12 @@
 
       <h2>Explore Wandr 🌍</h2>
 
-      <div style="display: flex; align-items: center;">
-        <button class="login-top-btn" onclick="goToLogin()">
-          <i class="fa fa-user-lock"></i> Login
+      <div style="display: flex; align-items: center; gap: 35px;">
+        <button onclick="toggleTheme()" class="theme-toggle-btn" style="background: none; border: none; color: inherit; font-size: 24px; cursor: pointer; transition: transform 0.2s;">
+          <i id="theme-icon" class="fa fa-sun"></i>
+        </button>
+        <button class="login-top-btn" onclick="showAuthModal()" style="font-size: 16px;">
+          <i class="fa fa-user-lock"></i> Sign In
         </button>
       </div>
 
@@ -190,20 +193,20 @@
 
 
     <!-- SLIDER -->
+    <div class="slider" style="position: relative; border-radius: 24px; overflow: hidden; padding: 0; min-height: 400px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 40px; border: none; background: transparent;">
 
-    <div class="slider glass">
-
-      <h3>Explore Top Places</h3>
-
-      <div class="slider-viewport">
-        <div class="slides">
-
-          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900" class="slide active">
-          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900" class="slide">
-          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=900" class="slide">
-          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900" class="slide">
-
+      <div class="slider-viewport" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+        <div class="slides" style="width: 100%; height: 100%;">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900" class="slide active" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900" class="slide" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=900" class="slide" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900" class="slide" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
         </div>
+      </div>
+
+      <div style="position: relative; z-index: 2; text-align: left; color: white; padding: 30px 60px; width: 100%; box-sizing: border-box;">
+        <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 15px; text-shadow: 0 2px 15px rgba(0,0,0,0.6);">Welcome Back, Explorer!</h1>
+        <p style="font-size: 18px; font-weight: 500; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.6);">You have 3 new bookings for the upcoming weekend. Ready for the next adventure?</p>
       </div>
 
     </div>
@@ -212,7 +215,7 @@
     <div class="home-grid">
 
       <!-- LEFT SIDE -->
-      <div class="left-col" onclick="goToLogin()" style="cursor: pointer;">
+      <div class="left-col" onclick="showAuthModal()" style="cursor: pointer;">
         <div id="map" class="map glass" style="pointer-events: none;"></div>
       </div>
 
@@ -224,7 +227,7 @@
 
           <!-- NEARBY -->
           <div class="nearby">
-            <button onclick="goToLogin()" class="nearby-btn">
+            <button onclick="showAuthModal()" class="nearby-btn">
               <i class="fa fa-location-dot"></i> Explore Nearby
             </button>
           </div>
@@ -406,15 +409,23 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="footer glass">
-      <div class="footer-content">
-        <button onclick="goToLogin()" class="footer-btn">
-          <i class="fa fa-life-ring"></i> Support
-        </button>
-        <button onclick="goToLogin()" class="footer-btn">
-          <i class="fa fa-comment-dots"></i> Send us Feedback
-        </button>
+    <footer style="margin: 40px -20px -20px -20px; padding: 20px; background: #0f172a; display: flex; flex-direction: column; gap: 8px; text-align: center; color: rgba(255,255,255,0.8);">
+      
+      <!-- Line 1: Links & Icons -->
+      <div style="display: flex; justify-content: center; align-items: center; gap: 20px; font-size: 13px; font-weight: 500;">
+        <span onclick="showAuthModal()" class="footer-link">Support Desk</span>
+        <span style="opacity: 0.3;">|</span>
+        <span onclick="showAuthModal()" class="footer-link">Provide Feedback</span>
+        <span style="opacity: 0.3;">|</span>
+        <a href="#" class="footer-icon" style="font-size: 16px; margin-left: -5px;"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="footer-icon" style="font-size: 16px;"><i class="fa-regular fa-envelope"></i></a>
       </div>
+
+      <!-- Line 2: Copyright -->
+      <div style="font-size: 11px; opacity: 0.5; letter-spacing: 0.5px;">
+        &copy; 2026 WANDR INC. ALL RIGHTS RESERVED.
+      </div>
+
     </footer>
 
   </div>
@@ -452,8 +463,33 @@
       }
     }
 
-    // Auto-popup if not logged in
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('theme-light');
+      const icon = document.getElementById('theme-icon');
+      if (isLight) {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+          localStorage.setItem('wandr_theme', 'light');
+      } else {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+          localStorage.setItem('wandr_theme', 'dark');
+      }
+    }
+
+    // Restore theme & Auto-popup
     window.addEventListener('DOMContentLoaded', () => {
+      // Restore Theme
+      if (localStorage.getItem('wandr_theme') === 'light') {
+          document.body.classList.add('theme-light');
+          const icon = document.getElementById('theme-icon');
+          if(icon) {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+          }
+      }
+
+      // Auto Popup
       if (!isAuthenticated) {
         setTimeout(() => {
           showAuthModal();

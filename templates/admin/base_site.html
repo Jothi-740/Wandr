@@ -71,7 +71,7 @@ body {
 }
 
 /* 2. LEFT SIDEBAR */
-#user-tools {
+#custom-sidebar {
     position: fixed !important;
     top: 85px !important;
     left: 0 !important;
@@ -89,13 +89,13 @@ body {
     margin: 0 !important;
 }
 
-#user-tools .nav-links {
+#custom-sidebar .nav-links {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
 
-#user-tools a {
+#custom-sidebar a {
     color: rgba(255,255,255,0.6) !important;
     font-size: 16px !important;
     font-weight: 500 !important;
@@ -110,7 +110,7 @@ body {
     box-sizing: border-box;
 }
 
-#user-tools a:hover, #user-tools a.active {
+#custom-sidebar a:hover, #custom-sidebar a.active {
     background: rgba(46, 196, 255, 0.08) !important;
     color: #2ec4ff !important;
     border-left: 3px solid #2ec4ff;
@@ -128,8 +128,7 @@ body {
 
 /* Hide default user greeting in sidebar */
 #branding { width: 100% !important; }
-#user-tools { color: transparent !important; }
-#user-tools strong { display: none !important; }
+#user-tools { display: none !important; }
 
 /* Hide Dark Mode Toggle */
 #theme-toggle, .theme-toggle, button.theme-toggle, [data-theme-switcher] {
@@ -141,12 +140,94 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(46,196,255,0.15); border-radius: 10px; }
 
+/* LIGHT MODE EXTERNAL OVERRIDES */
+body.theme-light {
+    background: #f4f7f6 !important;
+    color: #1a202c !important;
+}
+body.theme-light #header {
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+}
+body.theme-light #site-name a {
+    color: #1a202c !important;
+}
+body.theme-light #header a {
+    color: #1a202c !important;
+    border-color: rgba(0,0,0,0.1) !important;
+}
+body.theme-light #custom-sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid rgba(0,0,0,0.05) !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
+}
+body.theme-light #custom-sidebar a {
+    color: #4a5568 !important;
+}
+body.theme-light #custom-sidebar a:hover, body.theme-light #custom-sidebar a.active {
+    color: #3182ce !important;
+    background: rgba(49, 130, 206, 0.08) !important;
+    border-left: 3px solid #3182ce !important;
+}
+
+/* Fix Cards and Panels making them solid white */
+body.theme-light .card,
+body.theme-light .support-ticket,
+body.theme-light .glass-modal-content,
+body.theme-light .module,
+body.theme-light #changelist {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+}
+
+body.theme-light #feedback-section > div > div {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+/* Force text contrast */
+body.theme-light h1, body.theme-light h2, body.theme-light h3, body.theme-light h4, body.theme-light strong, body.theme-light .stat-value, body.theme-light caption, body.theme-light th {
+    color: #1a202c !important;
+}
+
+body.theme-light p, body.theme-light td, body.theme-light label, body.theme-light .stat-label, body.theme-light .tkt-desc {
+    color: #4a5568 !important;
+}
+
+/* Specific text overrides to handle inline translucency */
+body.theme-light span[style*="color: rgba(255,255,255,"] {
+    color: #718096 !important;
+}
+
+body.theme-light a:not(.action-btn) {
+    color: #3182ce !important;
+}
+
+body.theme-light .action-btn {
+    border-color: rgba(0,0,0,0.1) !important;
+    color: #1a202c !important;
+}
+
+body.theme-light input, body.theme-light select, body.theme-light textarea {
+    background: #fdfdfd !important;
+    color: #1a202c !important;
+    border: 1px solid #e2e8f0 !important;
+}
 </style>
 
 <script>
+    // Universal Light Mode Synchronization
     document.addEventListener("DOMContentLoaded", function() {
-        const sidebar = document.getElementById("user-tools");
-        if (!sidebar) return;
+        if (localStorage.getItem('wandr_theme') === 'light') {
+            document.body.classList.add('theme-light');
+        }
+
+        if (document.getElementById("custom-sidebar")) return;
+        
+        const sidebar = document.createElement("div");
+        sidebar.id = "custom-sidebar";
 
         // Reconstruct the sidebar according to latest sketch
         sidebar.innerHTML = `
@@ -159,6 +240,7 @@ body {
                 <a href="/admin/Account/usersettings/" id="nav-settings"><i class="fa fa-sliders-h"></i> User Settings</a>
             </div>
         `;
+        document.body.appendChild(sidebar);
 
         // Highlight active link
         const currentPath = window.location.pathname;
